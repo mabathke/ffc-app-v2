@@ -1,0 +1,26 @@
+<!-- app/templates/fangmeldung.html -->
+
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-4">
+    <h2>Fangmeldung</h2>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.fish.label(class="form-label") }}
+        {{ form.fish(class="form-control") }}
+        {% for error in form.fish.errors %}
+          <small class="text-danger">{{ error }}</small>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        {{ form.length.label(class="form-label") }}
+        {{ form.length(class="form-control") }}
+        {% for error in form.length.errors %}
+          <small class="text-danger">{{ error }}</small>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary mt-2">{{ form.submit.label.text }}</button>
+    </form>
+  </div>
+{% endblock %}

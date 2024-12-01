@@ -1,0 +1,47 @@
+<!-- app/templates/add_fish.html -->
+
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-4">
+    <h2>Add New Fish</h2>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+        {% for error in form.name.errors %}
+          <small class="text-danger">{{ error }}</small>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        {{ form.lower_bound.label(class="form-label") }}
+        {{ form.lower_bound(class="form-control") }}
+        {% for error in form.lower_bound.errors %}
+          <small class="text-danger">{{ error }}</small>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        {{ form.avg_length.label(class="form-label") }}
+        {{ form.avg_length(class="form-control") }}
+        {% for error in form.avg_length.errors %}
+          <small class="text-danger">{{ error }}</small>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        {{ form.upper_bound.label(class="form-label") }}
+        {{ form.upper_bound(class="form-control") }}
+        {% for error in form.upper_bound.errors %}
+          <small class="text-danger">{{ error }}</small>
+        {% endfor %}
+      </div>
+      <div class="form-group form-check">
+        {{ form.is_rare(class="form-check-input") }}
+        {{ form.is_rare.label(class="form-check-label") }}
+        {% for error in form.is_rare.errors %}
+          <small class="text-danger">{{ error }}</small>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary mt-2">{{ form.submit.label.text }}</button>
+    </form>
+  </div>
+{% endblock %}

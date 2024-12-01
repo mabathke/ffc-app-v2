@@ -1,0 +1,32 @@
+<!-- app/templates/manage_fish.html -->
+
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-4">
+    <h2>Manage Fish</h2>
+    <a href="{{ url_for('main.add_fish') }}" class="btn btn-success mb-3">Add New Fish</a>
+    <a href="{{ url_for('main.delete_fish') }}" class="btn btn-danger mb-3">Delete Fish</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Minimale Größe (cm)</th>
+          <th>Durchschnittliche Größe (cm)</th>
+          <th>Maximale Größe (cm)</th>
+          <th>Selten</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fish in fishes %}
+          <tr>
+            <td>{{ fish.name }}</td>
+            <td>{{ fish.lower_bound }}</td>
+            <td>{{ fish.avg_length }}</td>
+            <td>{{ fish.upper_bound }}</td>
+            <td>{{ 'Ja' if fish.is_rare else 'Nein' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

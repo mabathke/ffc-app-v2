@@ -1,0 +1,10 @@
+name: ffc-app
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - numpy
+  - pip
+  # Pip packages are listed in requirements.txt
+  - pip:
+      - -r requirements.txt

@@ -1,0 +1,12 @@
+<!-- app/templates/account.html -->
+
+{% extends "base.html" %}
+{% block content %}
+    <div class="mt-4">
+        <h2>Dein Account</h2>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Username:</strong> {{ current_user.username }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ current_user.email }}</li>
+        </ul>
+    </div>
+{% endblock %}

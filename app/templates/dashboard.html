@@ -1,0 +1,62 @@
+<!-- app/templates/dashboard.html -->
+
+{% extends "base.html" %}
+{% block content %}
+    <div class="mt-4">
+        <h1>Übersicht</h1>
+        {% if current_user.is_authenticated %}
+        <div class="container mt-4">
+            <h2>Meine Fänge</h2>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Fisch</th>
+                  <th>Größe</th>
+                  <th>Gefangen am</th>
+                  <th>Punkte</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for catch in catches_per_user %}
+                  <tr>
+                    <td>{{ catch.fish.name }}</td>
+                    <td>{{ catch.length }}</td>
+                    <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                    <td>{{ "%.2f" | format(catch.points) }}</td>
+                 </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="container mt-4">
+            <h2>Alle Fänge</h2>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Fisch</th>
+                  <th>Gefangen von</th>
+                  <th>Größe</th>
+                  <th>Gefangen am</th>
+                  <th>Punkte</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for catch in catches %}
+                  <tr>
+                    <td>{{ catch.fish.name }}</td>
+                    <td>{{ catch.user.username }}</td>
+                    <td>{{ catch.length }}</td>
+                    <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                    <td>{{ "%.2f" | format(catch.points) }}</td>
+                 </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+            <p>Hello, {{ current_user.username }}!</p>
+            <p>Go to your <a href="{{ url_for('main.account') }}">account page</a>.</p>
+        {% else %}
+            <p>Please <a href="{{ url_for('main.login') }}">login</a> or <a href="{{ url_for('main.register') }}">register</a> to access more features.</p>
+        {% endif %}
+    </div>
+{% endblock %}
