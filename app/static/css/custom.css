@@ -1,0 +1,206 @@
+/* custom.css */
+
+/* Body padding to prevent content from being hidden behind the fixed navbar */
+body {
+    font-family: 'Inter', sans-serif;
+    padding-top: 70px; /* Adjust this value if your navbar height changes */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    
+}
+
+/* Ensure the navbar doesn't expand */
+.navbar {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Scale down the logo image without enlarging the navbar */
+.navbar-brand img {
+    max-height: 50px; /* Adjust this value to fit your navbar */
+    width: auto;      /* Maintain aspect ratio */
+    padding: 0;
+    margin: 0;
+}
+
+/* Align navbar items vertically */
+.navbar-nav {
+    align-items: center;
+}
+
+/* Adjust navbar link padding */
+.navbar-nav .nav-link {
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: normal;
+}
+
+/* Optional: Adjust the padding of the toggler button */
+.navbar-toggler {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .navbar-brand img {
+        max-height: 40px; /* Smaller logo on small screens */
+    }
+}
+
+/* Customize Navbar Links */
+.navbar-nav .nav-link {
+    color: #fff;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #d4edda; /* Lighter shade of green */
+}
+
+/* Customize Alert Messages */
+.alert-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.alert-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.alert-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.alert-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Buttons */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* custom.css */
+
+/* Add spacing above and below headers */
+h1, h2 {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+/* Table Styling */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center; /* Center all content */
+}
+
+.table thead th {
+    background-color: #28a745; /* Header background */
+    color: #ffffff;           /* Header text color */
+    font-weight: bold;
+    padding: 16px;
+    text-align: center; /* Center header content */
+}
+
+.table tbody tr {
+    background-color: #ffffff; /* Row background */
+    border-bottom: 1px solid #ddd; /* Separator */
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Alternate row background */
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1; /* Hover effect */
+}
+
+.table tbody td {
+    padding: 16px;
+    font-size: 1rem;
+    color: #333333; /* Text color */
+    text-align: center; /* Center all cell content */
+    vertical-align: middle; /* Vertically align content */
+}
+
+.table tbody tr td:first-child,
+.table thead th:first-child {
+    border-top-left-radius: 8px; /* Round corners for first cell */
+}
+
+.table tbody tr td:last-child,
+.table thead th:last-child {
+    border-top-right-radius: 8px; /* Round corners for last cell */
+}
+/* Centering and Resizing the Logo */
+.logo {
+    display: block;
+    margin: 0 auto; /* Center the logo horizontally */
+    width: 250px; /* Larger size for the logo */
+    opacity: 0; /* Initially hidden */
+    transform: scale(0.5); /* Start smaller */
+    animation: fadeInScale 1.5s ease-in-out forwards; /* Trigger animation */
+}
+
+/* Keyframes for Logo Animation */
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.4); /* Slightly larger pop effect */
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1); /* Final size */
+    }
+}
+
+/* Rules Box Styling */
+.rules-box {
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 24px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rules-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rules-list li {
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    padding: 16px;
+    font-size: 1rem;
+    color: #333333;
+    text-align: left;
+    border-radius: 4px;
+}
+
+.rules-list li:hover {
+    background-color: #f1f1f1;
+}
