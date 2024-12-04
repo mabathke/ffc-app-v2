@@ -1,5 +1,7 @@
 /* custom.css */
 
+/* === General Styles === */
+
 /* Body padding to prevent content from being hidden behind the fixed navbar */
 body {
     font-family: 'Inter', sans-serif;
@@ -11,10 +13,11 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', sans-serif;
 }
 
-/* Ensure the navbar doesn't expand */
-.navbar {
-    padding-top: 0;
-    padding-bottom: 0;
+/* === Navbar Styles === */
+
+/* Override Bootstrap's bg-success for the navbar with higher specificity and !important */
+.navbar.navbar-expand-lg.navbar-dark.bg-success.fixed-top {
+    background-color: #218838 !important; /* Darker green */
 }
 
 /* Scale down the logo image without enlarging the navbar */
@@ -35,6 +38,11 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 0;
     padding-bottom: 0;
     line-height: normal;
+    color: #fff; /* Navbar link text color */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #c3e6cb; /* Darker shade of light green on hover */
 }
 
 /* Optional: Adjust the padding of the toggler button */
@@ -50,18 +58,9 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-/* Customize Navbar Links */
-.navbar-nav .nav-link {
-    color: #fff;
-}
-
-.navbar-nav .nav-link:hover {
-    color: #d4edda; /* Lighter shade of green */
-}
-
-/* Customize Alert Messages */
+/* === Alert Messages === */
 .alert-success {
-    background-color: #28a745;
+    background-color: #218838 !important; /* Darker green for success alerts */
     color: #fff;
 }
 
@@ -80,16 +79,28 @@ h1, h2, h3, h4, h5, h6 {
     color: #fff;
 }
 
-/* Buttons */
+/* === Buttons === */
 .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
+    background-color: #218838; /* Darker green for success buttons */
+    border-color: #218838;
 }
 
 .btn-success:hover {
-    background-color: #218838;
+    background-color: #1e7e34;
+    border-color: #1c7430;
+}
+
+.btn-primary {
+    background-color: #218838; /* Matching primary buttons to the new green */
     border-color: #1e7e34;
 }
+
+.btn-primary:hover {
+    background-color: #1e7e34;
+    border-color: #1c7430;
+}
+
+/* === Form Styling === */
 
 /* Add spacing above and below headers */
 h1, h2 {
@@ -110,7 +121,7 @@ h1, h2 {
 }
 
 .table thead th {
-    background-color: #28a745; /* Header background */
+    background-color: #218838; /* Darker green for table headers */
     color: #ffffff;           /* Header text color */
     font-weight: bold;
     padding: 16px;

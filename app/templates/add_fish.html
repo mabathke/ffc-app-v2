@@ -2,46 +2,93 @@
 
 {% extends "base.html" %}
 {% block content %}
-  <div class="container mt-4">
-    <h2>Add New Fish</h2>
-    <form method="POST">
-      {{ form.hidden_tag() }}
-      <div class="form-group">
-        {{ form.name.label(class="form-label") }}
-        {{ form.name(class="form-control") }}
-        {% for error in form.name.errors %}
-          <small class="text-danger">{{ error }}</small>
-        {% endfor %}
-      </div>
-      <div class="form-group">
-        {{ form.lower_bound.label(class="form-label") }}
-        {{ form.lower_bound(class="form-control") }}
-        {% for error in form.lower_bound.errors %}
-          <small class="text-danger">{{ error }}</small>
-        {% endfor %}
-      </div>
-      <div class="form-group">
-        {{ form.avg_length.label(class="form-label") }}
-        {{ form.avg_length(class="form-control") }}
-        {% for error in form.avg_length.errors %}
-          <small class="text-danger">{{ error }}</small>
-        {% endfor %}
-      </div>
-      <div class="form-group">
-        {{ form.upper_bound.label(class="form-label") }}
-        {{ form.upper_bound(class="form-control") }}
-        {% for error in form.upper_bound.errors %}
-          <small class="text-danger">{{ error }}</small>
-        {% endfor %}
-      </div>
-      <div class="form-group form-check">
-        {{ form.is_rare(class="form-check-input") }}
-        {{ form.is_rare.label(class="form-check-label") }}
-        {% for error in form.is_rare.errors %}
-          <small class="text-danger">{{ error }}</small>
-        {% endfor %}
-      </div>
-      <button type="submit" class="btn btn-primary mt-2">{{ form.submit.label.text }}</button>
-    </form>
-  </div>
+    <div class="mt-4 d-flex justify-content-center">
+        <div class="w-50">
+            <h1 class="text-center">Add New Fish</h1>
+            <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="FFC Logo" class="logo mx-auto d-block mb-4">
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <!-- Name Field -->
+                <div class="form-group text-center">
+                    {{ form.name.label(class="form-control-label d-block") }}
+                    {% if form.name.errors %}
+                        {{ form.name(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.name(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Lower Bound Field -->
+                <div class="form-group text-center">
+                    {{ form.lower_bound.label(class="form-control-label d-block") }}
+                    {% if form.lower_bound.errors %}
+                        {{ form.lower_bound(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.lower_bound.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lower_bound(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Average Length Field -->
+                <div class="form-group text-center">
+                    {{ form.avg_length.label(class="form-control-label d-block") }}
+                    {% if form.avg_length.errors %}
+                        {{ form.avg_length(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.avg_length.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.avg_length(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Upper Bound Field -->
+                <div class="form-group text-center">
+                    {{ form.upper_bound.label(class="form-control-label d-block") }}
+                    {% if form.upper_bound.errors %}
+                        {{ form.upper_bound(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.upper_bound.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.upper_bound(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Is Rare Checkbox -->
+                <div class="form-group form-check text-center">
+                    {% if form.is_rare.errors %}
+                        {{ form.is_rare(class="form-check-input is-invalid mx-auto", style="max-width: 400px;") }}
+                        {{ form.is_rare.label(class="form-check-label d-block") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.is_rare.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.is_rare(class="form-check-input mx-auto", style="max-width: 400px;") }}
+                        {{ form.is_rare.label(class="form-check-label d-block") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
