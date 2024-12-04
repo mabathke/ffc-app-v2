@@ -6,9 +6,9 @@ body {
     padding-top: 70px; /* Adjust this value if your navbar height changes */
 }
 
+/* Headings */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', sans-serif;
-    
 }
 
 /* Ensure the navbar doesn't expand */
@@ -91,8 +91,6 @@ h1, h2, h3, h4, h5, h6 {
     border-color: #1e7e34;
 }
 
-/* custom.css */
-
 /* Add spacing above and below headers */
 h1, h2 {
     margin-top: 30px;
@@ -149,6 +147,7 @@ h1, h2 {
 .table thead th:last-child {
     border-top-right-radius: 8px; /* Round corners for last cell */
 }
+
 /* Centering and Resizing the Logo */
 .logo {
     display: block;
@@ -203,4 +202,24 @@ h1, h2 {
 
 .rules-list li:hover {
     background-color: #f1f1f1;
+}
+
+/* === New Styles for Centering Forms === */
+
+/* Center text inside input fields */
+.form-control {
+    text-align: center;
+}
+
+/* Center the entire form */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Center the submit button */
+form .btn {
+    display: block;
+    margin: 0 auto;
 }

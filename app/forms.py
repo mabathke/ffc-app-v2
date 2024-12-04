@@ -8,24 +8,24 @@ from app.models import User, Fish
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email',
+    email = StringField('E-Mail',
                         validators=[DataRequired(), Email()])
-    password = PasswordField('Password',
+    password = PasswordField('Passwort',
                              validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
+    confirm_password = PasswordField('Passwort bestätigen',
                                      validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
+    submit = SubmitField('Registrieren')
 
     # Custom validators to check for existing username and email
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:
-            raise ValidationError('That username is taken. Please choose a different one.')
+            raise ValidationError('Der Username ist bereits vergeben. Wähle einen anderen.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError('That email is taken. Please choose a different one.')
+            raise ValidationError('Die E-Mail Adresse ist bereits registriert. Wähle eine andere.')
 
 class LoginForm(FlaskForm):
     email = StringField('Email',
