@@ -13,8 +13,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Link to Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-</head>
-<body>
+    
+    <!-- Custom CSS for Scrollable Tables -->
+    <style>
+      /* Scrollable container for tables */
+      .scrollable-table-container {
+        max-height: 300px; /* Adjust the height as needed */
+        overflow-y: auto;
+        /* Optional: Add padding or border if desired */
+      }
+
+      /* Ensure the table takes full width of the container */
+      .scrollable-table-container table {
+        width: 100%;
+        /* Optional: Use fixed table layout for better column alignment */
+        table-layout: fixed;
+      }
+
+      /* Optional: Fix table headers to remain visible during scroll */
+      .scrollable-table-container thead {
+        position: sticky;
+        top: 0;
+        background-color: #fff; /* Match your table header background */
+        z-index: 1; /* Ensure headers are above other content */
+      }
+    </style>
+  </head>
+  <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top">
       <a class="navbar-brand" href="{{ url_for('main.home') }}">
@@ -67,7 +92,7 @@
     </nav>
     
     <!-- Flash Messages -->
-    <div class="container mt-3">
+    <div class="container mt-5 pt-3">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
@@ -83,7 +108,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="container">
+    <div class="container mt-3">
       {% block content %}{% endblock %}
     </div>
     
@@ -91,14 +116,41 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
-</body>
-<script>
-  document.addEventListener('click', function() {
-      const logo = document.getElementById('logo');
-      if (logo) {
-          logo.classList.add('animate');
-          setTimeout(() => logo.classList.remove('animate'), 1000); // Reset animation after 1 second
-      }
-  });
-</script>
+    
+    <!-- JavaScript for Scrollable Tables -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Select all tables within the main content container
+        const tables = document.querySelectorAll('.container table');
+
+        tables.forEach(function(table) {
+          // Count the number of <tr> elements within <tbody>
+          const rowCount = table.querySelectorAll('tbody tr').length;
+
+          if (rowCount > 6) {
+            // Create a div wrapper
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('scrollable-table-container');
+
+            // Insert the wrapper before the table
+            table.parentNode.insertBefore(wrapper, table);
+
+            // Move the table inside the wrapper
+            wrapper.appendChild(table);
+          }
+        });
+      });
+    </script>
+    
+    <!-- Optional: Logo Animation Script -->
+    <script>
+      document.addEventListener('click', function() {
+          const logo = document.getElementById('logo');
+          if (logo) {
+              logo.classList.add('animate');
+              setTimeout(() => logo.classList.remove('animate'), 1000); // Reset animation after 1 second
+          }
+      });
+    </script>
+  </body>
 </html>
