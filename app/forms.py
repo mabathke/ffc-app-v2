@@ -78,3 +78,18 @@ class FangmeldungForm(FlaskForm):
     fish = SelectField('Fisch', coerce=int, validators=[DataRequired()])
     length = FloatField('Größe des Fisches', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Fang melden')
+    
+class EditFishForm(FlaskForm):
+    lower_bound = FloatField('Minimale Größe (cm)', validators=[DataRequired(), NumberRange(min=0)])
+    avg_length = FloatField('Durchschnittliche Größe (cm)', validators=[DataRequired(), NumberRange(min=0)])
+    upper_bound = FloatField('Maximale Größe (cm)', validators=[DataRequired(), NumberRange(min=0)])
+    is_rare = BooleanField('Selten')
+    submit = SubmitField('Änderungen speichern')
+
+    def validate_upper_bound(self, upper_bound):
+        if upper_bound.data < self.avg_length.data:
+            raise ValidationError('Die maximale Größe muss größer oder gleich der durchschnittlichen Größe sein.')
+
+    def validate_avg_length(self, avg_length):
+        if avg_length.data < self.lower_bound.data:
+            raise ValidationError('Die durchschnittliche Größe muss größer oder gleich der minimalen Größe sein.')

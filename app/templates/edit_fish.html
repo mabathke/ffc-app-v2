@@ -1,0 +1,45 @@
+<!-- app/templates/edit_fish.html -->
+
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="text-center">Fisch "{{ fish.name }}" bearbeiten</h1>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      
+      <div class="mb-3">
+        {{ form.lower_bound.label(class="form-label") }}
+        {{ form.lower_bound(class="form-control", placeholder="Minimale Größe in cm") }}
+        {% for error in form.lower_bound.errors %}
+          <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+      
+      <div class="mb-3">
+        {{ form.avg_length.label(class="form-label") }}
+        {{ form.avg_length(class="form-control", placeholder="Durchschnittliche Größe in cm") }}
+        {% for error in form.avg_length.errors %}
+          <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+      
+      <div class="mb-3">
+        {{ form.upper_bound.label(class="form-label") }}
+        {{ form.upper_bound(class="form-control", placeholder="Maximale Größe in cm") }}
+        {% for error in form.upper_bound.errors %}
+          <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+      
+      <div class="form-check mb-3">
+        {{ form.is_rare(class="form-check-input") }}
+        {{ form.is_rare.label(class="form-check-label") }}
+      </div>
+      
+      <div class="text-center">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('main.manage_fish') }}" class="btn btn-secondary">Abbrechen</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

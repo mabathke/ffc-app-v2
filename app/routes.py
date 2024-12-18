@@ -2,7 +2,7 @@
 
 from functools import wraps
 from flask import Blueprint, render_template, url_for, flash, redirect, request
-from app.forms import RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, FangmeldungForm
+from app.forms import RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, FangmeldungForm, EditFishForm
 from app.models import User, Fish, Catch
 from app import db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
@@ -186,3 +186,27 @@ def fangmeldung():
         return redirect(url_for('main.home'))
     
     return render_template('fangmeldung.html', title='Fangmeldung', form=form)
+
+@main.route("/admin/edit_fish/<int:fish_id>", methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_fish(fish_id):
+    fish = Fish.query.get_or_404(fish_id)
+    form = EditFishForm()
+
+    if form.validate_on_submit():
+        fish.lower_bound = form.lower_bound.data
+        fish.avg_length = form.avg_length.data
+        fish.upper_bound = form.upper_bound.data
+        fish.is_rare = form.is_rare.data
+        db.session.commit()
+        flash(f'Die Größen von "{fish.name}" wurden erfolgreich aktualisiert.', 'success')
+        return redirect(url_for('main.manage_fish'))
+    
+    elif request.method == 'GET':
+        form.lower_bound.data = fish.lower_bound
+        form.avg_length.data = fish.avg_length
+        form.upper_bound.data = fish.upper_bound
+        form.is_rare.data = fish.is_rare
+
+    return render_template('edit_fish.html', title='Fisch bearbeiten', form=form, fish=fish)
