@@ -104,6 +104,15 @@ def delete_fish():
     form = DeleteFishForm()
     if form.validate_on_submit():
         fish = Fish.query.filter_by(name=form.name.data).first()
+        if not fish:
+            flash('Der angegebene Fisch existiert nicht.', 'danger')
+            return redirect(url_for('main.manage_fish'))
+        
+        # Überprüfen, ob der Fisch zugehörige Fänge hat
+        if fish.catches:
+            flash('Dieser Fisch kann nicht gelöscht werden, da er zugehörige Fänge hat.', 'danger')
+            return redirect(url_for('main.manage_fish'))
+        
         db.session.delete(fish)
         db.session.commit()
         flash(f'Fisch "{form.name.data}" wurde gelöscht.', 'success')
