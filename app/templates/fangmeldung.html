@@ -3,24 +3,36 @@
 {% extends "base.html" %}
 {% block content %}
   <div class="container mt-4">
-    <h2>Fangmeldung</h2>
+    <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="FFC Logo" class="logo mx-auto d-block mb-4">
+    <h1 class="text-center">Fangmeldung</h1>
     <form method="POST">
       {{ form.hidden_tag() }}
-      <div class="form-group">
-        {{ form.fish.label(class="form-label") }}
-        {{ form.fish(class="form-control") }}
-        {% for error in form.fish.errors %}
-          <small class="text-danger">{{ error }}</small>
-        {% endfor %}
+      <div class="row">
+        <!-- Fish Field -->
+        <div class="col-md-6 mb-3">
+          <div class="form-group">
+            {{ form.fish.label(class="form-label") }}
+            {{ form.fish(class="form-control") }}
+            {% for error in form.fish.errors %}
+              <small class="text-danger">{{ error }}</small>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <!-- Length Field -->
+        <div class="col-md-6 mb-3">
+          <div class="form-group">
+            {{ form.length.label(class="form-label") }}
+            {{ form.length(class="form-control") }}
+            {% for error in form.length.errors %}
+              <small class="text-danger">{{ error }}</small>
+            {% endfor %}
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        {{ form.length.label(class="form-label") }}
-        {{ form.length(class="form-control") }}
-        {% for error in form.length.errors %}
-          <small class="text-danger">{{ error }}</small>
-        {% endfor %}
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary mt-2">{{ form.submit.label.text }}</button>
       </div>
-      <button type="submit" class="btn btn-primary mt-2">{{ form.submit.label.text }}</button>
     </form>
   </div>
 {% endblock %}

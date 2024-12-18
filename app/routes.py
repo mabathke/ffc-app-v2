@@ -37,9 +37,9 @@ def register():
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
-        flash('Your account has been created! You can now log in.', 'success')
+        flash('Dein Konto wurde erstellt! Du kannst dich jetzt einloggen.', 'success')
         return redirect(url_for('main.login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html', title='Registrieren', form=form)
 
 @main.route("/login", methods=['GET', 'POST'])
 def login():
@@ -51,10 +51,10 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
-            flash('You have been logged in!', 'success')
+            flash('Du wurdest erfolgreich eingeloggt!', 'success')
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
         else:
-            flash('Login Unsuccessful. Please check email and password.', 'danger')
+            flash('Login fehlgeschlagen. Bitte überprüfe E-Mail und Passwort.', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 @main.route("/logout")
@@ -65,14 +65,14 @@ def logout():
 @main.route("/account")
 @login_required
 def account():
-    return render_template('account.html', title='Account')
+    return render_template('account.html', title='Konto')
 
 # Decorator to restrict routes to admin users
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin:
-            flash('You do not have permission to access this page.', 'danger')
+            flash('Du hast keine Berechtigung, auf diese Seite zuzugreifen.', 'danger')
             return redirect(url_for('main.home'))
         return f(*args, **kwargs)
     return decorated_function
@@ -93,9 +93,9 @@ def add_fish():
         )
         db.session.add(fish)
         db.session.commit()
-        flash(f'Fish "{form.name.data}" has been added.', 'success')
+        flash(f'Fisch "{form.name.data}" wurde hinzugefügt.', 'success')
         return redirect(url_for('main.manage_fish'))
-    return render_template('add_fish.html', title='Add Fish', form=form)
+    return render_template('add_fish.html', title='Fisch hinzufügen', form=form)
 
 @main.route("/admin/delete_fish", methods=['GET', 'POST'])
 @login_required
@@ -106,16 +106,16 @@ def delete_fish():
         fish = Fish.query.filter_by(name=form.name.data).first()
         db.session.delete(fish)
         db.session.commit()
-        flash(f'Fish "{form.name.data}" has been deleted.', 'success')
+        flash(f'Fisch "{form.name.data}" wurde gelöscht.', 'success')
         return redirect(url_for('main.manage_fish'))
-    return render_template('delete_fish.html', title='Delete Fish', form=form)
+    return render_template('delete_fish.html', title='Fisch löschen', form=form)
 
 @main.route("/admin/manage_fish")
 @login_required
 @admin_required
 def manage_fish():
     fishes = Fish.query.all()
-    return render_template('manage_fish.html', title='Manage Fish', fishes=fishes)
+    return render_template('manage_fish.html', title='Fische verwalten', fishes=fishes)
 
 @main.route("/rules")
 @login_required
@@ -134,13 +134,13 @@ def fangmeldung():
     form.fish.choices = [(fish.id, fish.name) for fish in fishes]
     
     if not fishes:
-        flash('No fish available. Please contact the administrator.', 'warning')
+        flash('Keine Fische verfügbar. Bitte kontaktiere den Administrator.', 'warning')
         return redirect(url_for('main.home'))
     
     if form.validate_on_submit():
         selected_fish = Fish.query.get(form.fish.data)
         if not selected_fish:
-            flash('Selected fish does not exist.', 'danger')
+            flash('Der ausgewählte Fisch existiert nicht.', 'danger')
             return redirect(url_for('main.fangmeldung'))
         
         length = form.length.data
@@ -173,7 +173,7 @@ def fangmeldung():
         db.session.add(new_catch)
         
         db.session.commit()
-        flash(f'Your catch of {length} cm for "{selected_fish.name}" has been recorded. Points awarded: {points}', 'success')
+        flash(f'Dein Fang von {int(length)} cm für "{selected_fish.name}" wurde erfasst. Vergabene Punkte: {int(points)}.', 'success')
         return redirect(url_for('main.home'))
     
     return render_template('fangmeldung.html', title='Fangmeldung', form=form)

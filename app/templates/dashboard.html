@@ -4,9 +4,9 @@
 {% block content %}
 <div class="mt-4">
   <div class="container">
-      <h1 class="text-center">Rangliste</h1>
       <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="Logo" class="logo">
-    
+      <h1 class="text-center">Rangliste</h1>
+      
       <table class="table table-striped">
         <thead>
           <tr>
@@ -37,8 +37,8 @@
                   <th>Fisch</th>
                   <th>Gefangen von</th>
                   <th>Größe</th>
-                  <th>Gefangen am</th>
-                  <th>Punkte</th>
+                  <th class="d-none d-md-table-cell">Gefangen am</th>
+                  <th class="d-none d-md-table-cell">Punkte</th>
                 </tr>
               </thead>
               <tbody>
@@ -47,12 +47,13 @@
                     <td>{{ catch.fish.name }}</td>
                     <td>{{ catch.user.username }}</td>
                     <td>{{ catch.length }}</td>
-                    <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
-                    <td>{{ "%.0f" | format(catch.points) }}</td>
-                 </tr>
+                    <td class="d-none d-md-table-cell">{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                    <td class="d-none d-md-table-cell">{{ "%.0f" | format(catch.points) }}</td>
+                  </tr>
                 {% endfor %}
               </tbody>
             </table>
+            
         </div>
         <div class="container mt-4">
             <h2 class="text-center">Meine Fänge</h2>
@@ -62,7 +63,7 @@
                   <th>Fisch</th>
                   <th>Größe</th>
                   <th>Gefangen am</th>
-                  <th>Punkte</th>
+                  <th class="d-none d-md-table-cell">Punkte</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,7 +71,7 @@
                   <tr>
                     <td>{{ catch.fish.name }}</td>
                     <td>{{ catch.length }}</td>
-                    <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                    <td class="d-none d-md-table-cell">{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
                     <td>{{ "%.0f" | format(catch.points) }}</td>
                  </tr>
                 {% endfor %}

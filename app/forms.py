@@ -36,7 +36,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class AddFishForm(FlaskForm):
-    name = StringField('Fish Name', validators=[DataRequired(), Length(min=2, max=50)])
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=50)])
     avg_length = FloatField('Durschnittliche Größe', validators=[DataRequired(), NumberRange(min=0)])
     lower_bound = FloatField('Minimale Größe', validators=[DataRequired(), NumberRange(min=0)])
     upper_bound = FloatField('Maximale Größe', validators=[DataRequired(), NumberRange(min=0)])

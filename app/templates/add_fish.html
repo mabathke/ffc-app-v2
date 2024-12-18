@@ -4,8 +4,8 @@
 {% block content %}
     <div class="mt-4 d-flex justify-content-center">
         <div class="w-50">
-            <h1 class="text-center">Add New Fish</h1>
             <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="FFC Logo" class="logo mx-auto d-block mb-4">
+            <h1 class="text-center">Fisch hinzufügen</h1>
             <form method="POST" action="">
                 {{ form.hidden_tag() }}
                 <!-- Name Field -->
