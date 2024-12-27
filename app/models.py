@@ -55,8 +55,8 @@ class Invitation(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     code = db.Column(db.String(6), unique=True, nullable=False)
     is_used = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    expires_at = db.Column(db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=30))  # Optional expiration
+    created_at = db.Column(db.DateTime, default=datetime.utcnow())
+    expires_at = db.Column(db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=7))  
 
     def __repr__(self):
         return f"Invitation('{self.email}', '{self.code}', Used: {self.is_used})"

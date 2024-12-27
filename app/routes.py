@@ -14,7 +14,7 @@ main = Blueprint('main', __name__)
 @main.route("/")
 @main.route("/home")
 def home():
-    catches = Catch.query.all()
+    catches =  Catch.query.order_by(Catch.timestamp.desc()).all()
     catches_per_user = []
     
     # Aggregate total points per user

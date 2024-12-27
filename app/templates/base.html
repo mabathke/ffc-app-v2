@@ -80,14 +80,14 @@
               <a class="nav-link" href="{{ url_for('main.account') }}">Account</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.logout') }}">Logout</a>
+              <a class="nav-link" href="{{ url_for('main.logout') }}">Abmelden</a>
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+              <a class="nav-link" href="{{ url_for('main.login') }}">Anmelden</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.register') }}">Register</a>
+              <a class="nav-link" href="{{ url_for('main.register') }}">Registrieren</a>
             </li>
           {% endif %}
         </ul>
