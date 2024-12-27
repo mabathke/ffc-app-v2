@@ -3,6 +3,10 @@
 from app import db, login_manager
 from flask_login import UserMixin
 from datetime import datetime
+import uuid
+from datetime import datetime, timedelta
+import random
+import string
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -45,3 +49,23 @@ class Catch(db.Model):
 
     def __repr__(self):
         return f"Catch(Fish ID={self.fish_id}, Length={self.length}, User ID={self.user_id})"
+    
+class Invitation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    code = db.Column(db.String(6), unique=True, nullable=False)
+    is_used = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=30))  # Optional expiration
+
+    def __repr__(self):
+        return f"Invitation('{self.email}', '{self.code}', Used: {self.is_used})"
+
+    @staticmethod
+    def generate_unique_code():
+        """Generates a unique 6-digit code."""
+        while True:
+            code = ''.join(random.choices(string.digits, k=6))
+            if not Invitation.query.filter_by(code=code).first():
+                break
+        return code

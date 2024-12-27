@@ -2,8 +2,8 @@
 
 from functools import wraps
 from flask import Blueprint, render_template, url_for, flash, redirect, request
-from app.forms import RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, FangmeldungForm, EditFishForm
-from app.models import User, Fish, Catch
+from app.forms import RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, FangmeldungForm, EditFishForm, GenerateInviteForm
+from app.models import User, Fish, Catch, Invitation
 from app import db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
@@ -210,3 +210,23 @@ def edit_fish(fish_id):
         form.is_rare.data = fish.is_rare
 
     return render_template('edit_fish.html', title='Fisch bearbeiten', form=form, fish=fish)
+
+@app.route("/manage_invitations", methods=['GET', 'POST'])
+@login_required
+@admin_required
+def manage_invitations():
+    form = GenerateInviteForm()
+    if form.validate_on_submit():
+        # Generate unique 6-digit code
+        code = Invitation.generate_unique_code()
+        # Create a new invitation
+        invitation = Invitation(email=form.email.data, code=code)
+        db.session.add(invitation)
+        db.session.commit()
+        # Flash the code to the admin
+        flash(f'Einladungscode für {form.email.data}: {code}', 'success')
+        return redirect(url_for('main.manage_invitations'))
+    
+    # Fetch all invitations (optional: exclude sensitive data)
+    invitations = Invitation.query.order_by(Invitation.created_at.desc()).all()
+    return render_template('manage_invitations.html', title='Einladungen verwalten', form=form, invitations=invitations)

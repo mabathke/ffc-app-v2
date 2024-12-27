@@ -3,7 +3,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, FloatField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
-from app.models import User, Fish
+from app.models import User, Fish, Invitation
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -93,3 +93,12 @@ class EditFishForm(FlaskForm):
     def validate_avg_length(self, avg_length):
         if avg_length.data < self.lower_bound.data:
             raise ValidationError('Die durchschnittliche Größe muss größer oder gleich der minimalen Größe sein.')
+        
+class GenerateInviteForm(FlaskForm):
+    email = StringField('E-Mail', validators=[DataRequired(), Email()])
+    submit = SubmitField('Einladung generieren')
+
+    def validate_email(self, email):
+        existing_invitation = Invitation.query.filter_by(email=email.data, is_used=False).first()
+        if existing_invitation:
+            raise ValidationError('Es existiert bereits eine nicht verwendete Einladung für diese E-Mail-Adresse.')

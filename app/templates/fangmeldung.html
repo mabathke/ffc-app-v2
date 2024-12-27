@@ -35,4 +35,27 @@
       </div>
     </form>
   </div>
+  <div class="container mt-4">
+    <h2 class="text-center">Meine Fänge</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Fisch</th>
+          <th>Größe</th>
+          <th>Gefangen am</th>
+          <th class="d-none d-md-table-cell">Punkte</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for catch in catches_per_user %}
+          <tr>
+            <td>{{ catch.fish.name }}</td>
+            <td>{{ catch.length }}</td>
+            <td class="d-none d-md-table-cell">{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+            <td>{{ "%.0f" | format(catch.points) }}</td>
+         </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
 {% endblock %}

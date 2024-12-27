@@ -79,7 +79,7 @@
             </table>
         </div>
         {% else %}
-            <p class="text-center">Please <a href="{{ url_for('main.login') }}">login</a> or <a href="{{ url_for('main.register') }}">register</a> to access more features.</p>
+            <p class="text-center"><a href="{{ url_for('main.login') }}">Melde dich an</a> oder <a href="{{ url_for('main.register') }}">registriere dich.</a> </p>
         {% endif %}
     </div>
 {% endblock %}
