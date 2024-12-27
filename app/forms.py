@@ -6,26 +6,30 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from app.models import User, Fish, Invitation
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username',
-                           validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('E-Mail',
-                        validators=[DataRequired(), Email()])
-    password = PasswordField('Passwort',
-                             validators=[DataRequired()])
-    confirm_password = PasswordField('Passwort bestätigen',
-                                     validators=[DataRequired(), EqualTo('password')])
+    invite_code = StringField('Einladungscode', validators=[DataRequired(), Length(min=6, max=6, message="Der Einladungscode muss 6 Ziffern lang sein.")])
+    email = StringField('E-Mail', validators=[DataRequired(), Email()])
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    password = PasswordField('Passwort', validators=[DataRequired()])
+    confirm_password = PasswordField('Passwort bestätigen', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Registrieren')
 
-    # Custom validators to check for existing username and email
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Der Username ist bereits vergeben. Wähle einen anderen.')
+    def validate_invite_code(self, invite_code):
+        invitation = Invitation.query.filter_by(code=invite_code.data, is_used=False).first()
+        if not invitation:
+            raise ValidationError('Ungültiger oder bereits verwendeter Einladungscode.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Die E-Mail Adresse ist bereits registriert. Wähle eine andere.')
+        invitation = Invitation.query.filter_by(email=email.data, is_used=False).first()
+        if not invitation:
+            raise ValidationError('Keine gültige Einladung für diese E-Mail-Adresse.')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('Der Username ist bereits vergeben. Wähle einen anderen.')
 
 class LoginForm(FlaskForm):
     email = StringField('E-Mail',

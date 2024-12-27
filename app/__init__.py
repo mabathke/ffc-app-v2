@@ -4,6 +4,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 from config import Config
 
 # Instantiate extensions without binding to the app yet
@@ -12,6 +15,7 @@ bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'main.login'  # Endpoint name for the login route
 login_manager.login_message_category = 'info'
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 def create_app(config_class=Config):
     app = Flask(__name__, instance_relative_config=True)
@@ -21,7 +25,8 @@ def create_app(config_class=Config):
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
-
+    limiter.init_app(app)
+     
     # Register Blueprints
     from app.routes import main
     app.register_blueprint(main)

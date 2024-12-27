@@ -4,9 +4,10 @@ from functools import wraps
 from flask import Blueprint, render_template, url_for, flash, redirect, request
 from app.forms import RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, FangmeldungForm, EditFishForm, GenerateInviteForm
 from app.models import User, Fish, Catch, Invitation
-from app import db, bcrypt
+from app import db, bcrypt, limiter
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -28,17 +29,31 @@ def home():
     return render_template('dashboard.html', title='Home', catches=catches, catches_per_user=catches_per_user, rankings=rankings)
 
 @main.route("/register", methods=['GET', 'POST'])
+@limiter.limit("10 per hour")
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Dein Konto wurde erstellt! Du kannst dich jetzt einloggen.', 'success')
-        return redirect(url_for('main.login'))
+        # Retrieve the invitation
+        invitation = Invitation.query.filter_by(code=form.invite_code.data, is_used=False).first()
+        if invitation and invitation.email == form.email.data:
+            # Optionally, check for expiration
+            if invitation.expires_at < datetime.utcnow():
+                flash('Der Einladungscode ist abgelaufen.', 'danger')
+                return redirect(url_for('main.register'))
+            # Hash the password
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            # Create a new user
+            user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+            db.session.add(user)
+            # Mark the invitation as used
+            invitation.is_used = True
+            db.session.commit()
+            flash('Dein Konto wurde erstellt! Du kannst dich jetzt einloggen.', 'success')
+            return redirect(url_for('main.login'))
+        else:
+            flash('Ungültiger Einladungscode oder E-Mail-Adresse.', 'danger')
     return render_template('register.html', title='Registrieren', form=form)
 
 @main.route("/login", methods=['GET', 'POST'])
@@ -211,7 +226,7 @@ def edit_fish(fish_id):
 
     return render_template('edit_fish.html', title='Fisch bearbeiten', form=form, fish=fish)
 
-@app.route("/manage_invitations", methods=['GET', 'POST'])
+@main.route("/manage_invitations", methods=['GET', 'POST'])
 @login_required
 @admin_required
 def manage_invitations():
