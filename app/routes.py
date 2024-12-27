@@ -29,7 +29,7 @@ def home():
     return render_template('dashboard.html', title='Home', catches=catches, catches_per_user=catches_per_user, rankings=rankings)
 
 @main.route("/register", methods=['GET', 'POST'])
-@limiter.limit("10 per hour")
+@limiter.limit("10 per hour") # to prevent brute force attacks
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
