@@ -17,6 +17,7 @@ login_manager.login_view = 'main.login'  # Endpoint name for the login route
 login_manager.login_message_category = 'info'
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
+
 def create_app(config_class=Config):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_class)
@@ -26,7 +27,7 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     limiter.init_app(app)
-     
+
     # Register Blueprints
     from app.routes import main
     app.register_blueprint(main)

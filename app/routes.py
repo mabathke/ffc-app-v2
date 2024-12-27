@@ -1,7 +1,7 @@
 # app/routes.py
 
 from functools import wraps
-from flask import Blueprint, render_template, url_for, flash, redirect, request
+from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from app.forms import RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, FangmeldungForm, EditFishForm, GenerateInviteForm
 from app.models import User, Fish, Catch, Invitation
 from app import db, bcrypt, limiter
@@ -157,6 +157,13 @@ def fangmeldung():
     fishes = Fish.query.order_by(Fish.name).all()
     form.fish.choices = [(fish.id, fish.name) for fish in fishes]
     
+    catches_per_user = []
+    
+    if current_user.is_authenticated:
+        catches_per_user = Catch.query.filter_by(user_id=current_user.id)\
+                               .order_by(Catch.timestamp.desc())\
+                               .all()
+    
     if not fishes:
         flash('Keine Fische verfügbar. Bitte kontaktiere den Administrator.', 'warning')
         return redirect(url_for('main.home'))
@@ -198,9 +205,9 @@ def fangmeldung():
         
         db.session.commit()
         flash(f'Dein Fang von {int(length)} cm für "{selected_fish.name}" wurde erfasst. Vergabene Punkte: {int(points)}.', 'success')
-        return redirect(url_for('main.home'))
+        return redirect(url_for('main.fangmeldung'))
     
-    return render_template('fangmeldung.html', title='Fangmeldung', form=form)
+    return render_template('fangmeldung.html', title='Fangmeldung', form=form, catches_per_user=catches_per_user)
 
 @main.route("/admin/edit_fish/<int:fish_id>", methods=['GET', 'POST'])
 @login_required
@@ -245,3 +252,17 @@ def manage_invitations():
     # Fetch all invitations (optional: exclude sensitive data)
     invitations = Invitation.query.order_by(Invitation.created_at.desc()).all()
     return render_template('manage_invitations.html', title='Einladungen verwalten', form=form, invitations=invitations)
+
+@main.route('/delete_catch/<int:catch_id>', methods=['POST'])
+@login_required
+def delete_catch(catch_id):
+    catch = Catch.query.get_or_404(catch_id)
+    
+    # Ensure the catch belongs to the current user
+    if catch.user_id != current_user.id:
+        abort(403)  # Forbidden
+    
+    db.session.delete(catch)
+    db.session.commit()
+    flash('Dein Fang wurde erfolgreich gelöscht.', 'success')
+    return redirect(url_for('main.fangmeldung'))
