@@ -8,6 +8,7 @@
             <h1 class="text-center">Fisch hinzufügen</h1>
             <form method="POST" action="">
                 {{ form.hidden_tag() }}
+                
                 <!-- Name Field -->
                 <div class="form-group text-center">
                     {{ form.name.label(class="form-control-label d-block") }}
@@ -23,64 +24,63 @@
                     {% endif %}
                 </div>
                 
-                <!-- Lower Bound Field -->
+                <!-- Multiplicator Field -->
                 <div class="form-group text-center">
-                    {{ form.lower_bound.label(class="form-control-label d-block") }}
-                    {% if form.lower_bound.errors %}
-                        {{ form.lower_bound(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
+                    {{ form.multiplicator.label(class="form-control-label d-block") }}
+                    {% if form.multiplicator.errors %}
+                        {{ form.multiplicator(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
                         <div class="invalid-feedback">
-                            {% for error in form.lower_bound.errors %}
+                            {% for error in form.multiplicator.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.lower_bound(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
+                        {{ form.multiplicator(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
                     {% endif %}
                 </div>
                 
-                <!-- Average Length Field -->
+                <!-- Above Average Field -->
                 <div class="form-group text-center">
-                    {{ form.avg_length.label(class="form-control-label d-block") }}
-                    {% if form.avg_length.errors %}
-                        {{ form.avg_length(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
+                    {{ form.above_average.label(class="form-control-label d-block") }}
+                    {% if form.above_average.errors %}
+                        {{ form.above_average(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
                         <div class="invalid-feedback">
-                            {% for error in form.avg_length.errors %}
+                            {% for error in form.above_average.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.avg_length(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
+                        {{ form.above_average(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
                     {% endif %}
                 </div>
                 
-                <!-- Upper Bound Field -->
+                <!-- Monster Field -->
                 <div class="form-group text-center">
-                    {{ form.upper_bound.label(class="form-control-label d-block") }}
-                    {% if form.upper_bound.errors %}
-                        {{ form.upper_bound(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
+                    {{ form.monster.label(class="form-control-label d-block") }}
+                    {% if form.monster.errors %}
+                        {{ form.monster(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
                         <div class="invalid-feedback">
-                            {% for error in form.upper_bound.errors %}
+                            {% for error in form.monster.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.upper_bound(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
+                        {{ form.monster(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
                     {% endif %}
                 </div>
                 
-                <!-- Is Rare Checkbox -->
-                <div class="form-group form-check text-center">
-                    {% if form.is_rare.errors %}
-                        {{ form.is_rare(class="form-check-input is-invalid mx-auto", style="max-width: 400px;") }}
-                        {{ form.is_rare.label(class="form-check-label d-block") }}
+                <!-- Worth Field -->
+                <div class="form-group text-center">
+                    {{ form.worth.label(class="form-control-label d-block") }}
+                    {% if form.worth.errors %}
+                        {{ form.worth(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
                         <div class="invalid-feedback">
-                            {% for error in form.is_rare.errors %}
+                            {% for error in form.worth.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.is_rare(class="form-check-input mx-auto", style="max-width: 400px;") }}
-                        {{ form.is_rare.label(class="form-check-label d-block") }}
+                        {{ form.worth(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
                     {% endif %}
                 </div>
                 

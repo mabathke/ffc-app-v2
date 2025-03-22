@@ -28,17 +28,14 @@ class Fish(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     multiplicator = db.Column(db.Float, nullable=False, default=1.0)
-    # 'above_average' represents the above average length for a fish in centimeters (or your chosen unit)
     above_average = db.Column(db.Integer, nullable=False)
-    # 'monster' represents the monster length threshold for a fish
     monster = db.Column(db.Integer, nullable=False)
-    
-    # Relationship with catches (if you want to keep tracking which catches belong to which fish)
+    worth = db.Column(db.Float, nullable=False, default=25)  # New attribute for challenge points
     catches = db.relationship('Catch', backref='fish', lazy=True)
 
     def __repr__(self):
         return (f"Fish('{self.name}', multiplicator={self.multiplicator}, "
-                f"above_average={self.above_average}, monster={self.monster})")
+                f"above_average={self.above_average}, monster={self.monster}, worth={self.worth})")
 
     
 class Catch(db.Model):

@@ -44,6 +44,7 @@ class AddFishForm(FlaskForm):
     multiplicator = FloatField('Multiplicator', validators=[DataRequired()])
     above_average = IntegerField('Above Average Length', validators=[DataRequired()])
     monster = IntegerField('Monster Length', validators=[DataRequired()])
+    worth = FloatField('Worth', validators=[DataRequired()])
     submit = SubmitField('Add Fish')
 
     def validate_name(self, name):
@@ -52,20 +53,11 @@ class AddFishForm(FlaskForm):
             raise ValidationError('Der Fisch existiert bereits.')
     
     def validate(self, extra_validators=None):
-        # First, run the default validations
         if not super(AddFishForm, self).validate(extra_validators):
             return False
-
-        # Cross-field validation: Ensure that upper_bound >= lower_bound
-        if self.upper_bound.data <= self.lower_bound.data:
-            self.upper_bound.errors.append('Die maximale Größe kann nicht kleiner oder gleich als die minimale Größe sein.')
+        if self.monster.data <= self.above_average.data:
+            self.monster.errors.append('Die Monster-Länge muss größer als die Above Average Länge sein.')
             return False
-
-        # Cross-field validation: Ensure that avg_length is between lower_bound and upper_bound
-        if not (self.lower_bound.data < self.avg_length.data < self.upper_bound.data):
-            self.avg_length.errors.append('Die durchschnittliche Größe muss zwischen der minimalen und maximalen Größe liegen.')
-            return False
-
         return True
 
 class DeleteFishForm(FlaskForm):
@@ -86,7 +78,9 @@ class EditFishForm(FlaskForm):
     multiplicator = FloatField('Multiplicator', validators=[DataRequired()])
     above_average = IntegerField('Above Average Length', validators=[DataRequired()])
     monster = IntegerField('Monster Length', validators=[DataRequired()])
+    worth = FloatField('Worth', validators=[DataRequired()])
     submit = SubmitField('Update Fish')
+
         
 class GenerateInviteForm(FlaskForm):
     email = StringField('E-Mail', validators=[DataRequired(), Email()])

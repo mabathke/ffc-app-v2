@@ -9,10 +9,9 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th>Minimale Größe (cm)</th>
-          <th>Durchschnittliche Größe (cm)</th>
-          <th>Maximale Größe (cm)</th>
-          <th>Selten</th>
+          <th>Multiplikator</th>
+          <th>Above Average Länge (cm)</th>
+          <th>Monster Länge (cm)</th>
           <th>Aktionen</th>
         </tr>
       </thead>
@@ -20,10 +19,9 @@
         {% for fish in fishes %}
           <tr>
             <td>{{ fish.name }}</td>
-            <td>{{ fish.lower_bound | round(0) }}</td>
-            <td>{{ fish.avg_length | round(0) }}</td>
-            <td>{{ fish.upper_bound | round(0) }}</td>
-            <td>{{ 'Ja' if fish.is_rare else 'Nein' }}</td>
+            <td>{{ fish.multiplicator }}</td>
+            <td>{{ fish.above_average }}</td>
+            <td>{{ fish.monster }}</td>
             <td>
               <a href="{{ url_for('main.edit_fish', fish_id=fish.id) }}" class="btn btn-primary btn-sm">Bearbeiten</a>
             </td>

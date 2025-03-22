@@ -103,12 +103,14 @@ def add_fish():
             multiplicator=form.multiplicator.data,
             above_average=form.above_average.data,
             monster=form.monster.data,
+            worth=form.worth.data,  # New field for challenge points
         )
         db.session.add(fish)
         db.session.commit()
         flash(f'Fisch "{form.name.data}" wurde hinzugefügt.', 'success')
         return redirect(url_for('main.manage_fish'))
     return render_template('add_fish.html', title='Fisch hinzufügen', form=form)
+
 
 
 @main.route("/admin/delete_fish", methods=['GET', 'POST'])
@@ -152,16 +154,15 @@ def rules():
 def fangmeldung():
     form = FangmeldungForm()
     
-    # Populate the fish choices
+    # Populate the fish choices from the updated Fish model
     fishes = Fish.query.order_by(Fish.name).all()
     form.fish.choices = [(fish.id, fish.name) for fish in fishes]
     
     catches_per_user = []
-    
     if current_user.is_authenticated:
         catches_per_user = Catch.query.filter_by(user_id=current_user.id)\
-                               .order_by(Catch.timestamp.desc())\
-                               .all()
+                                      .order_by(Catch.timestamp.desc())\
+                                      .all()
     
     if not fishes:
         flash('Keine Fische verfügbar. Bitte kontaktiere den Administrator.', 'warning')
@@ -174,24 +175,21 @@ def fangmeldung():
             return redirect(url_for('main.fangmeldung'))
         
         length = form.length.data
-        lower_bound = selected_fish.lower_bound
-        upper_bound = selected_fish.upper_bound
-        avg_length = selected_fish.avg_length  # Use static avg_length from Fish table
-        is_rare = selected_fish.is_rare
         
-        # Calculate points based on the rules
-        if length < lower_bound:
-            points = 0
-        elif lower_bound <= length < avg_length:
-            points = length * 0.5
-        elif avg_length <= length <= upper_bound:
-            points = length * 1
-        elif length > upper_bound:
-            points = length * 1.5
+        # Get fish parameters
+        multiplicator = selected_fish.multiplicator
+        kapital = selected_fish.above_average  # This is our threshold for "under kapital"
+        monster = selected_fish.monster
         
-        # Apply rare fish multiplier
-        if is_rare:
-            points *= 2
+        # Calculate points using the new rules:
+        if length < kapital:
+            points = length * multiplicator
+        elif kapital <= length <= monster:
+            points = length * (multiplicator + 0.2)
+        elif length > monster:
+            points = length * (multiplicator + 0.5)
+        else:
+            points = 0  # Fallback
         
         # Log the catch with calculated points
         new_catch = Catch(
@@ -201,12 +199,13 @@ def fangmeldung():
             points=points
         )
         db.session.add(new_catch)
-        
         db.session.commit()
+        
         flash(f'Dein Fang von {int(length)} cm für "{selected_fish.name}" wurde erfasst. Vergabene Punkte: {int(points)}.', 'success')
         return redirect(url_for('main.fangmeldung'))
     
     return render_template('fangmeldung.html', title='Fangmeldung', form=form, catches_per_user=catches_per_user)
+
 
 @main.route("/admin/edit_fish/<int:fish_id>", methods=['GET', 'POST'])
 @login_required
@@ -219,6 +218,7 @@ def edit_fish(fish_id):
         fish.multiplicator = form.multiplicator.data
         fish.above_average = form.above_average.data
         fish.monster = form.monster.data
+        fish.worth = form.worth.data
         db.session.commit()
         flash(f'Die Werte von "{fish.name}" wurden erfolgreich aktualisiert.', 'success')
         return redirect(url_for('main.manage_fish'))
@@ -227,8 +227,10 @@ def edit_fish(fish_id):
         form.multiplicator.data = fish.multiplicator
         form.above_average.data = fish.above_average
         form.monster.data = fish.monster
+        form.worth.data = fish.worth
 
     return render_template('edit_fish.html', title='Fisch bearbeiten', form=form, fish=fish)
+
 
 
 @main.route("/manage_invitations", methods=['GET', 'POST'])
