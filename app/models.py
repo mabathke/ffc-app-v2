@@ -27,14 +27,19 @@ class Fish(db.Model):
     __tablename__ = 'fish'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    avg_length = db.Column(db.Integer, nullable=False)
-    lower_bound = db.Column(db.Integer, nullable=False)
-    upper_bound = db.Column(db.Integer, nullable=False)
-    is_rare = db.Column(db.Boolean, default=False) 
+    multiplicator = db.Column(db.Float, nullable=False, default=1.0)
+    # 'above_average' represents the above average length for a fish in centimeters (or your chosen unit)
+    above_average = db.Column(db.Integer, nullable=False)
+    # 'monster' represents the monster length threshold for a fish
+    monster = db.Column(db.Integer, nullable=False)
+    
+    # Relationship with catches (if you want to keep tracking which catches belong to which fish)
     catches = db.relationship('Catch', backref='fish', lazy=True)
 
     def __repr__(self):
-        return f"Fish('{self.name}', Avg Length={self.avg_length} cm, Lower Bound={self.lower_bound}, Upper Bound= {self.upper_bound})"
+        return (f"Fish('{self.name}', multiplicator={self.multiplicator}, "
+                f"above_average={self.above_average}, monster={self.monster})")
+
     
 class Catch(db.Model):
     __tablename__ = 'catch'

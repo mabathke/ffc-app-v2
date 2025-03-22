@@ -98,19 +98,18 @@ def admin_required(f):
 def add_fish():
     form = AddFishForm()
     if form.validate_on_submit():
-        
         fish = Fish(
             name=form.name.data,
-            lower_bound = form.lower_bound.data,
-            avg_length= form.avg_length.data,
-            upper_bound = form.upper_bound.data,
-            is_rare = form.is_rare.data,
+            multiplicator=form.multiplicator.data,
+            above_average=form.above_average.data,
+            monster=form.monster.data,
         )
         db.session.add(fish)
         db.session.commit()
         flash(f'Fisch "{form.name.data}" wurde hinzugefügt.', 'success')
         return redirect(url_for('main.manage_fish'))
     return render_template('add_fish.html', title='Fisch hinzufügen', form=form)
+
 
 @main.route("/admin/delete_fish", methods=['GET', 'POST'])
 @login_required
@@ -217,21 +216,20 @@ def edit_fish(fish_id):
     form = EditFishForm()
 
     if form.validate_on_submit():
-        fish.lower_bound = form.lower_bound.data
-        fish.avg_length = form.avg_length.data
-        fish.upper_bound = form.upper_bound.data
-        fish.is_rare = form.is_rare.data
+        fish.multiplicator = form.multiplicator.data
+        fish.above_average = form.above_average.data
+        fish.monster = form.monster.data
         db.session.commit()
-        flash(f'Die Größen von "{fish.name}" wurden erfolgreich aktualisiert.', 'success')
+        flash(f'Die Werte von "{fish.name}" wurden erfolgreich aktualisiert.', 'success')
         return redirect(url_for('main.manage_fish'))
     
     elif request.method == 'GET':
-        form.lower_bound.data = fish.lower_bound
-        form.avg_length.data = fish.avg_length
-        form.upper_bound.data = fish.upper_bound
-        form.is_rare.data = fish.is_rare
+        form.multiplicator.data = fish.multiplicator
+        form.above_average.data = fish.above_average
+        form.monster.data = fish.monster
 
     return render_template('edit_fish.html', title='Fisch bearbeiten', form=form, fish=fish)
+
 
 @main.route("/manage_invitations", methods=['GET', 'POST'])
 @login_required

@@ -1,7 +1,7 @@
 # app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, FloatField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, SelectField, FloatField, PasswordField, SubmitField, BooleanField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from app.models import User, Fish, Invitation
 
@@ -40,12 +40,11 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class AddFishForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=50)])
-    avg_length = FloatField('Durschnittliche Größe', validators=[DataRequired(), NumberRange(min=0)])
-    lower_bound = FloatField('Minimale Größe', validators=[DataRequired(), NumberRange(min=0)])
-    upper_bound = FloatField('Maximale Größe', validators=[DataRequired(), NumberRange(min=0)])
-    is_rare = BooleanField('Selten', default=False)  
-    submit = SubmitField('Fisch hinzufügen')
+    name = StringField('Name', validators=[DataRequired()])
+    multiplicator = FloatField('Multiplicator', validators=[DataRequired()])
+    above_average = IntegerField('Above Average Length', validators=[DataRequired()])
+    monster = IntegerField('Monster Length', validators=[DataRequired()])
+    submit = SubmitField('Add Fish')
 
     def validate_name(self, name):
         fish = Fish.query.filter_by(name=name.data).first()
@@ -84,19 +83,10 @@ class FangmeldungForm(FlaskForm):
     submit = SubmitField('Fang melden')
     
 class EditFishForm(FlaskForm):
-    lower_bound = FloatField('Minimale Größe (cm)', validators=[DataRequired(), NumberRange(min=0)])
-    avg_length = FloatField('Durchschnittliche Größe (cm)', validators=[DataRequired(), NumberRange(min=0)])
-    upper_bound = FloatField('Maximale Größe (cm)', validators=[DataRequired(), NumberRange(min=0)])
-    is_rare = BooleanField('Selten')
-    submit = SubmitField('Änderungen speichern')
-
-    def validate_upper_bound(self, upper_bound):
-        if upper_bound.data < self.avg_length.data:
-            raise ValidationError('Die maximale Größe muss größer oder gleich der durchschnittlichen Größe sein.')
-
-    def validate_avg_length(self, avg_length):
-        if avg_length.data < self.lower_bound.data:
-            raise ValidationError('Die durchschnittliche Größe muss größer oder gleich der minimalen Größe sein.')
+    multiplicator = FloatField('Multiplicator', validators=[DataRequired()])
+    above_average = IntegerField('Above Average Length', validators=[DataRequired()])
+    monster = IntegerField('Monster Length', validators=[DataRequired()])
+    submit = SubmitField('Update Fish')
         
 class GenerateInviteForm(FlaskForm):
     email = StringField('E-Mail', validators=[DataRequired(), Email()])
