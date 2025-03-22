@@ -64,6 +64,9 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('main.rules') }}">Regeln</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('main.challenges') }}">Challenges</a>
+            </li>
             {% if current_user.is_admin %}
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.manage_fish') }}">Fische verwalten</a>
@@ -71,6 +74,7 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.manage_invitations') }}">Angler Einladen</a>
               </li>
+              
             {% endif %}
           {% endif %}
         </ul>

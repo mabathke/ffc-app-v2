@@ -1,7 +1,8 @@
 # app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, FloatField, PasswordField, SubmitField, BooleanField, IntegerField
+from wtforms import (StringField, SelectField, FloatField, PasswordField, SubmitField,
+                        BooleanField, IntegerField, TextAreaField)
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from app.models import User, Fish, Invitation
 
@@ -81,6 +82,18 @@ class EditFishForm(FlaskForm):
     worth = FloatField('Worth', validators=[DataRequired()])
     submit = SubmitField('Update Fish')
 
+class CreateChallengeForm(FlaskForm):
+    # Optional fish selection. "0" means all fish.
+    fish = SelectField('Fisch auswählen (optional)', validators=[DataRequired()])
+    goal = IntegerField('Ziel: Anzahl Fische fangen', validators=[DataRequired()])
+    time_limit = SelectField('Zeitlimit', choices=[
+        ('2 minute', '2 Minuten'),  # Testing option
+        ('1 day', '1 Tag'),
+        ('1 week', '1 Woche'),
+        ('1 month', '1 Monat')
+    ], validators=[DataRequired()])
+    description = TextAreaField('Beschreibung (optional)')
+    submit = SubmitField('Challenge erstellen')
         
 class GenerateInviteForm(FlaskForm):
     email = StringField('E-Mail', validators=[DataRequired(), Email()])

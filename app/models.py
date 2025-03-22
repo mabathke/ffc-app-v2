@@ -71,3 +71,32 @@ class Invitation(db.Model):
             if not Invitation.query.filter_by(code=code).first():
                 break
         return code
+    
+class Challenge(db.Model):
+    __tablename__ = 'challenge'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    fish_id = db.Column(db.Integer, db.ForeignKey('fish.id'), nullable=True)
+    goal = db.Column(db.Integer, nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    expiration_time = db.Column(db.DateTime, nullable=False)
+    description = db.Column(db.String(255))
+    # Relationships
+    user = db.relationship('User', backref='created_challenges')
+    fish = db.relationship('Fish')
+    participations = db.relationship('ChallengeParticipation', backref='challenge', lazy=True)
+
+    
+class ChallengeParticipation(db.Model):
+    __tablename__ = 'challenge_participation'
+    id = db.Column(db.Integer, primary_key=True)
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    joined_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    awarded_points = db.Column(db.Float, default=0)
+    success = db.Column(db.Boolean, default=False)  # True if challenge met, False if not.
+
+    user = db.relationship('User', backref='challenge_participations')
+
+    def __repr__(self):
+        return f"<ChallengeParticipation Challenge:{self.challenge_id} User:{self.user_id} Awarded:{self.awarded_points} Success:{self.success}>"

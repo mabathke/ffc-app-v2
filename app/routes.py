@@ -2,12 +2,13 @@
 
 from functools import wraps
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
-from app.forms import RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, FangmeldungForm, EditFishForm, GenerateInviteForm
-from app.models import User, Fish, Catch, Invitation
+from app.forms import (RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, 
+                       FangmeldungForm, EditFishForm, GenerateInviteForm, CreateChallengeForm)
+from app.models import ChallengeParticipation, User, Fish, Catch, Invitation, Challenge, Catch
 from app import db, bcrypt, limiter
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
-from datetime import datetime
+from datetime import datetime, timedelta
 
 main = Blueprint('main', __name__)
 
@@ -65,6 +66,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
+            process_expired_challenges()
             next_page = request.args.get('next')
             flash('Du wurdest erfolgreich eingeloggt!', 'success')
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
@@ -80,7 +82,11 @@ def logout():
 @main.route("/account")
 @login_required
 def account():
-    return render_template('account.html', title='Konto')
+    my_catches = Catch.query.filter_by(user_id=current_user.id).order_by(Catch.timestamp.desc()).all()
+    my_challenges = ChallengeParticipation.query.filter_by(user_id=current_user.id).all()
+    now = datetime.utcnow()
+    return render_template("account.html", title="Konto", my_catches=my_catches, my_challenges=my_challenges, now=now)
+
 
 # Decorator to restrict routes to admin users
 def admin_required(f):
@@ -266,3 +272,133 @@ def delete_catch(catch_id):
     db.session.commit()
     flash('Dein Fang wurde erfolgreich gelöscht.', 'success')
     return redirect(url_for('main.fangmeldung'))
+
+@main.route("/challenges")
+@login_required
+def challenges():
+    # Process expired challenges if necessary
+    process_expired_challenges()
+    
+    now = datetime.utcnow()
+    current_challenges = Challenge.query.filter(Challenge.expiration_time > now).all()
+    expired_challenges = Challenge.query.filter(Challenge.expiration_time <= now).all()
+    my_participations = ChallengeParticipation.query.filter_by(user_id=current_user.id).all()
+    
+    return render_template('challenges.html', title="Herausforderungen",
+                           current_challenges=current_challenges,
+                           expired_challenges=expired_challenges,
+                           my_participations=my_participations,
+                           now=now)
+
+
+@main.route("/create_challenge", methods=['GET', 'POST'])
+@login_required
+def create_challenge():
+    form = CreateChallengeForm()
+    # Populate fish choices: "0" means all fish, then each fish is selectable
+    fishes = Fish.query.all()
+    form.fish.choices = [("0", "Alle Fische")] + [(str(fish.id), fish.name) for fish in fishes]
+
+    if form.validate_on_submit():
+        # Determine the expiration based on the time_limit field.
+        if form.time_limit.data == "2 minute":
+            expiration = datetime.utcnow() + timedelta(minutes=2)
+        elif form.time_limit.data == "1 day":
+            expiration = datetime.utcnow() + timedelta(days=1)
+        elif form.time_limit.data == "1 week":
+            expiration = datetime.utcnow() + timedelta(weeks=1)
+        elif form.time_limit.data == "1 month":
+            expiration = datetime.utcnow() + timedelta(days=30)
+        else:
+            expiration = datetime.utcnow() + timedelta(weeks=1)  # default
+
+        # If "0" is selected, set fish_id to None.
+        fish_id = None
+        if form.fish.data != "0":
+            fish_id = int(form.fish.data)
+
+        # Create the challenge using the correct field (user_id)
+        challenge = Challenge(
+            user_id=current_user.id,
+            fish_id=fish_id,
+            goal=form.goal.data,
+            expiration_time=expiration,
+            description=form.description.data
+        )
+        db.session.add(challenge)
+        db.session.commit()
+
+        flash("Herausforderung wurde erfolgreich erstellt.", "success")
+        return redirect(url_for("main.challenges"))
+    
+    return render_template("create_challenge.html", title="Challenge erstellen", form=form)
+
+@main.route("/join_challenge/<int:challenge_id>")
+@login_required
+def join_challenge(challenge_id):
+    # Retrieve the challenge or return 404 if not found
+    challenge = Challenge.query.get_or_404(challenge_id)
+    
+    # Check if the current user already joined this challenge
+    participation = ChallengeParticipation.query.filter_by(
+        challenge_id=challenge_id, user_id=current_user.id
+    ).first()
+    
+    if participation:
+        flash("Du bist bereits dieser Challenge beigetreten.", "info")
+    else:
+        # Create a new participation record for the current user
+        new_participation = ChallengeParticipation(
+            challenge_id=challenge_id,
+            user_id=current_user.id
+        )
+        db.session.add(new_participation)
+        db.session.commit()
+        flash("Du bist der Challenge beigetreten!", "success")
+    
+    return redirect(url_for("main.challenges"))
+
+
+
+def process_expired_challenges():
+    """
+    Process all expired challenges.
+    For each participation:
+      - Count the number of catches by the participant between challenge.start_time and challenge.expiration_time.
+      - If the catch count meets or exceeds the challenge goal, award full points.
+        • If the challenge targets a specific fish: full points = catch_count * fish.worth
+        • If the challenge is open to all fish: full points = catch_count * 25
+      - Otherwise, award a penalty of negative half of the full points.
+    """
+    now = datetime.utcnow()
+    # Get all challenges that have expired (you could also add a flag to avoid reprocessing)
+    expired_challenges = Challenge.query.filter(Challenge.expiration_time <= now).all()
+
+    for challenge in expired_challenges:
+        for participation in challenge.participations:
+            catch_query = Catch.query.filter(
+                Catch.user_id == participation.user_id,
+                Catch.timestamp >= challenge.start_time,
+                Catch.timestamp <= challenge.expiration_time
+            )
+            if challenge.fish_id:
+                catch_query = catch_query.filter(Catch.fish_id == challenge.fish_id)
+            catch_count = catch_query.count()
+            
+            if challenge.fish_id:
+                # Use the fish's worth attribute
+                full_points = catch_count * challenge.fish.worth
+            else:
+                # Use fixed multiplier 25 for any fish
+                full_points = catch_count * 25
+
+            if catch_count >= challenge.goal:
+                participation.awarded_points = full_points
+                participation.success = True
+            else:
+                participation.awarded_points = - (full_points / 2)
+                participation.success = False
+
+            # Mark this participation as processed (if needed, you might add an extra flag)
+            db.session.add(participation)
+        db.session.commit()

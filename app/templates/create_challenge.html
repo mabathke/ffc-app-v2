@@ -1,0 +1,47 @@
+<!-- app/templates/create_challenge.html -->
+
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h1 class="text-center">Herausforderung erstellen</h1>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    
+    <div class="form-group mb-3">
+      {{ form.fish.label(class="form-label") }}
+      {{ form.fish(class="form-control") }}
+      {% for error in form.fish.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    
+    <div class="form-group mb-3">
+      {{ form.goal.label(class="form-label") }}
+      {{ form.goal(class="form-control", placeholder="Zielanzahl Fische") }}
+      {% for error in form.goal.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    
+    <div class="form-group mb-3">
+      {{ form.time_limit.label(class="form-label") }}
+      {{ form.time_limit(class="form-control") }}
+      {% for error in form.time_limit.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    
+    <div class="form-group mb-3">
+      {{ form.description.label(class="form-label") }}
+      {{ form.description(class="form-control", placeholder="Optionale Beschreibung") }}
+      {% for error in form.description.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    
+    <div class="text-center">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+</div>
+{% endblock %}

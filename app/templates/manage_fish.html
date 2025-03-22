@@ -12,6 +12,7 @@
           <th>Multiplikator</th>
           <th>Above Average Länge (cm)</th>
           <th>Monster Länge (cm)</th>
+          <th>Worth</th>
           <th>Aktionen</th>
         </tr>
       </thead>
@@ -22,6 +23,7 @@
             <td>{{ fish.multiplicator }}</td>
             <td>{{ fish.above_average }}</td>
             <td>{{ fish.monster }}</td>
+            <td>{{ fish.worth }}</td>
             <td>
               <a href="{{ url_for('main.edit_fish', fish_id=fish.id) }}" class="btn btn-primary btn-sm">Bearbeiten</a>
             </td>

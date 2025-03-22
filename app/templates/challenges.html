@@ -1,0 +1,160 @@
+<!-- app/templates/challenges.html -->
+
+{% extends "base.html" %}
+{% block content %}
+<div class="mt-4">
+  <div class="container">
+    <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="Logo" class="logo mx-auto d-block mb-4">
+    <h1 class="text-center">Herausforderungen</h1>
+    
+    <!-- Meine Herausforderungen Section -->
+    <h2 class="text-center mt-4">Meine Herausforderungen</h2>
+    {% if my_participations %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Herausforderung</th>
+            <th>Status</th>
+            <th>Ergebnis</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for part in my_participations %}
+          <tr>
+            <td>
+              {% if part.challenge.fish %}
+                {{ part.challenge.goal }} {{ part.challenge.fish.name }} fangen
+              {% else %}
+                {{ part.challenge.goal }} Fische fangen (alle Arten)
+              {% endif %}
+              <br>
+              <small>Start: {{ part.challenge.start_time.strftime('%d.%m.%Y') }}, Ende: {{ part.challenge.expiration_time.strftime('%d.%m.%Y') }}</small>
+            </td>
+            <td>
+              {% if part.challenge.expiration_time > now %}
+                Aktiv
+              {% else %}
+                Abgelaufen
+              {% endif %}
+            </td>
+            <td>
+              {% if part.challenge.expiration_time > now %}
+                -
+              {% else %}
+                {% if part.success %}
+                  Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                {% else %}
+                  Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-center">Du hast noch keine Challenges beigetreten.</p>
+    {% endif %}
+    
+    <!-- Current Challenges Section -->
+    <h2 class="text-center mt-4">Aktuelle Herausforderungen</h2>
+    {% if current_challenges %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Herausforderer</th>
+            <th>Herausforderung</th>
+            <th>Endet in</th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for challenge in current_challenges %}
+          <tr>
+            <td>{{ challenge.user.username }}</td>
+            <td>
+              {% if challenge.fish %}
+                {{ challenge.goal }} {{ challenge.fish.name }} fangen
+              {% else %}
+                {{ challenge.goal }} Fische fangen (alle Arten)
+              {% endif %}
+            </td>
+            <td>
+              {% set remaining = challenge.expiration_time - now %}
+              {% if remaining.days > 0 %}
+                {{ remaining.days }} Tag{{ "e" if remaining.days > 1 else "" }}
+              {% else %}
+                {% set hours = remaining.seconds // 3600 %}
+                {{ hours }} Std.
+              {% endif %}
+            </td>
+            <td>
+              {% set joined = false %}
+              {% for part in challenge.participations %}
+                {% if part.user_id == current_user.id %}
+                  {% set joined = true %}
+                {% endif %}
+              {% endfor %}
+              {% if joined %}
+                <button class="btn btn-secondary btn-sm" disabled>Beigetreten</button>
+              {% else %}
+                <a href="{{ url_for('main.join_challenge', challenge_id=challenge.id) }}" class="btn btn-success btn-sm">Beitreten</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-center">Zurzeit gibt es keine aktiven Herausforderungen.</p>
+    {% endif %}
+    <div class="text-center mb-4">
+      <a href="{{ url_for('main.create_challenge') }}" class="btn btn-success">Herausforderung erstellen</a>
+    </div>
+    
+    <!-- Expired Challenges Section -->
+    <h2 class="text-center mt-4">Abgelaufene Herausforderungen</h2>
+    {% if expired_challenges %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Herausforderer</th>
+            <th>Herausforderung</th>
+            <th>Ergebnisse</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for challenge in expired_challenges %}
+          <tr>
+            <td>{{ challenge.user.username }}</td>
+            <td>
+              {% if challenge.fish %}
+                {{ challenge.goal }} {{ challenge.fish.name }} fangen
+              {% else %}
+                {{ challenge.goal }} Fische fangen (alle Arten)
+              {% endif %}
+              <br>
+              <small>Start: {{ challenge.start_time.strftime('%d.%m.%Y') }}, Ende: {{ challenge.expiration_time.strftime('%d.%m.%Y') }}</small>
+            </td>
+            <td>
+              {% for part in challenge.participations %}
+                <div>
+                  <strong>{{ part.user.username }}</strong>:
+                  {% if part.success %}
+                    Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                  {% else %}
+                    Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-center">Es gibt keine abgelaufenen Herausforderungen.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
