@@ -34,10 +34,10 @@ class RegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField('E-Mail',
                         validators=[DataRequired(), Email()])
-    password = PasswordField('Password',
+    password = PasswordField('Passwort',
                              validators=[DataRequired()])
-    remember = BooleanField('Remember Me')
-    submit = SubmitField('Login')
+    remember = BooleanField('Angemeldet bleiben')
+    submit = SubmitField('Admin')
 
 class AddFishForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
@@ -49,7 +49,7 @@ class AddFishForm(FlaskForm):
     def validate_name(self, name):
         fish = Fish.query.filter_by(name=name.data).first()
         if fish:
-            raise ValidationError('This fish already exists. Please choose a different name.')
+            raise ValidationError('Der Fisch existiert bereits.')
     
     def validate(self, extra_validators=None):
         # First, run the default validations
@@ -69,13 +69,13 @@ class AddFishForm(FlaskForm):
         return True
 
 class DeleteFishForm(FlaskForm):
-    name = StringField('Fish Name', validators=[DataRequired(), Length(min=2, max=50)])
-    submit = SubmitField('Delete Fish')
+    name = StringField('Fischname', validators=[DataRequired(), Length(min=2, max=50)])
+    submit = SubmitField('Fisch löschen')
 
     def validate_name(self, name):
         fish = Fish.query.filter_by(name=name.data).first()
         if not fish:
-            raise ValidationError('Fish not found.')
+            raise ValidationError('Fisch nicht gefunden.')
                
 class FangmeldungForm(FlaskForm):
     fish = SelectField('Fisch', coerce=int, validators=[DataRequired()])
