@@ -27,37 +27,66 @@
       </table>
   </div>
 
-
-        {% if current_user.is_authenticated %}
-        <div class="container mt-4">
-            <h2 class="text-center">Alle Fänge</h2>
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Fisch</th>
-                  <th>Gefangen von</th>
-                  <th>Größe</th>
-                  <th class="d-none d-md-table-cell">Gefangen am</th>
-                  <th class="d-none d-md-table-cell">Punkte</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for catch in catches %}
-                  <tr>
-                    <td>{{ catch.fish.name }}</td>
-                    <td>{{ catch.user.username }}</td>
-                    <td>{{ catch.length }}</td>
-                    <td class="d-none d-md-table-cell">{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
-                    <td class="d-none d-md-table-cell">{{ "%.0f" | format(catch.points) }}</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-            
-        </div>
-    
-        {% else %}
-            <p class="text-center"><a href="{{ url_for('main.login') }}">Melde dich an</a> oder <a href="{{ url_for('main.register') }}">registriere dich.</a> </p>
-        {% endif %}
+  {% if current_user.is_authenticated %}
+    <div class="container mt-4">
+        <h2 class="text-center">Alle Fänge</h2>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Fisch</th>
+              <th>Gefangen von</th>
+              <th>Größe</th>
+              <th class="d-none d-md-table-cell">Gefangen am</th>
+              <th class="d-none d-md-table-cell">Punkte</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for catch in catches %}
+              <tr>
+                <td>{{ catch.fish.name }}</td>
+                <td>{{ catch.user.username }}</td>
+                <td>{{ catch.length }}</td>
+                <td class="d-none d-md-table-cell">{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                <td class="d-none d-md-table-cell">{{ "%.0f" | format(catch.points) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+        <h2 class="text-center mt-4">Abgelaufene Challenges (Gewinner)</h2>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Herausforderung</th>
+              <th>Gewinner</th>
+              <th>Ergebnis</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cp in expired_challenges %}
+              <tr>
+                <td>
+                  {% if cp.challenge.fish %}
+                    {{ cp.challenge.goal }} {{ cp.challenge.fish.name }} fangen
+                  {% else %}
+                    {{ cp.challenge.goal }} Fische fangen (alle Arten)
+                  {% endif %}
+                  <br>
+                  <small>
+                    Start: {{ cp.challenge.start_time.strftime('%d.%m.%Y') }},
+                    Ende: {{ cp.challenge.expiration_time.strftime('%d.%m.%Y') }}
+                  </small>
+                </td>
+                <td>{{ cp.user.username }}</td>
+                <td>{{ "%.0f"|format(cp.awarded_points) }} (Gewonnen)</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
     </div>
+  {% else %}
+      <p class="text-center"><a href="{{ url_for('main.login') }}">Melde dich an</a> oder <a href="{{ url_for('main.register') }}">registriere dich.</a> </p>
+  {% endif %}
+</div>
 {% endblock %}

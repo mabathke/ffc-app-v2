@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)  # Admin flag
+    is_admin = db.Column(db.Boolean, default=True)  # Admin flag
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', Admin={self.is_admin})"
@@ -81,10 +81,16 @@ class Challenge(db.Model):
     start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expiration_time = db.Column(db.DateTime, nullable=False)
     description = db.Column(db.String(255))
+    processed = db.Column(db.Boolean, default=False, nullable=False)  # New field
+
     # Relationships
     user = db.relationship('User', backref='created_challenges')
     fish = db.relationship('Fish')
     participations = db.relationship('ChallengeParticipation', backref='challenge', lazy=True)
+
+    def __repr__(self):
+        target = "ALL" if not self.fish_id else self.fish.name
+        return f"<Challenge id:{self.id} User:{self.user_id}, Target:{target}, Goal:{self.goal}>"
 
     
 class ChallengeParticipation(db.Model):

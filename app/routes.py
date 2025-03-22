@@ -15,19 +15,49 @@ main = Blueprint('main', __name__)
 @main.route("/")
 @main.route("/home")
 def home():
-    catches =  Catch.query.order_by(Catch.timestamp.desc()).all()
-    catches_per_user = []
-    
-    # Aggregate total points per user
-    rankings = db.session.query(
-        User.username,
-        func.sum(Catch.points).label('total_points')
-    ).join(Catch).group_by(User.id).order_by(func.sum(Catch.points).desc()).all()
-    
+    now = datetime.utcnow()
+
+    # Retrieve all catches (ordered by timestamp descending)
+    catches = Catch.query.order_by(Catch.timestamp.desc()).all()
     if current_user.is_authenticated:
         catches_per_user = Catch.query.filter_by(user_id=current_user.id).all()
-    
-    return render_template('dashboard.html', title='Home', catches=catches, catches_per_user=catches_per_user, rankings=rankings)
+    else:
+        catches_per_user = []
+
+    # Subquery for catch points per user
+    catch_subq = db.session.query(
+        Catch.user_id,
+        func.coalesce(func.sum(Catch.points), 0).label('catch_points')
+    ).group_by(Catch.user_id).subquery()
+
+    # Subquery for challenge points (only from expired challenges, both winners and losers)
+    challenge_subq = db.session.query(
+        ChallengeParticipation.user_id,
+        func.coalesce(func.sum(ChallengeParticipation.awarded_points), 0).label('challenge_points')
+    ).join(Challenge, Challenge.id == ChallengeParticipation.challenge_id)\
+    .filter(Challenge.expiration_time <= now)\
+    .group_by(ChallengeParticipation.user_id).subquery()
+
+    # Join the subqueries with User to compute total points per user
+    rankings = db.session.query(
+        User.username,
+        (func.coalesce(catch_subq.c.catch_points, 0) + func.coalesce(challenge_subq.c.challenge_points, 0)).label('total_points')
+    ).outerjoin(catch_subq, catch_subq.c.user_id == User.id)\
+     .outerjoin(challenge_subq, challenge_subq.c.user_id == User.id)\
+     .order_by((func.coalesce(catch_subq.c.catch_points, 0) + func.coalesce(challenge_subq.c.challenge_points, 0)).desc())\
+     .all()
+
+    # Query expired challenge participations where success is True (winners)
+    expired_challenges = ChallengeParticipation.query.join(Challenge)\
+                           .filter(Challenge.expiration_time <= now, ChallengeParticipation.success == True)\
+                           .order_by(ChallengeParticipation.awarded_points.desc()).all()
+
+    return render_template('dashboard.html',
+                           title='Home',
+                           catches=catches,
+                           catches_per_user=catches_per_user,
+                           rankings=rankings,
+                           expired_challenges=expired_challenges)
 
 @main.route("/register", methods=['GET', 'POST'])
 @limiter.limit("10 per hour") # to prevent brute force attacks
@@ -359,23 +389,23 @@ def join_challenge(challenge_id):
     return redirect(url_for("main.challenges"))
 
 
-
 def process_expired_challenges():
-    """
-    Process all expired challenges.
-    For each participation:
-      - Count the number of catches by the participant between challenge.start_time and challenge.expiration_time.
-      - If the catch count meets or exceeds the challenge goal, award full points.
-        • If the challenge targets a specific fish: full points = catch_count * fish.worth
-        • If the challenge is open to all fish: full points = catch_count * 25
-      - Otherwise, award a penalty of negative half of the full points.
-    """
     now = datetime.utcnow()
-    # Get all challenges that have expired (you could also add a flag to avoid reprocessing)
-    expired_challenges = Challenge.query.filter(Challenge.expiration_time <= now).all()
+    # Only get challenges that have expired and have not been processed yet.
+    expired_challenges = Challenge.query.filter(
+        Challenge.expiration_time <= now,
+        Challenge.processed == False
+    ).all()
 
     for challenge in expired_challenges:
+        # Calculate full potential points based on the challenge goal.
+        if challenge.fish:
+            full_points = challenge.goal * challenge.fish.worth
+        else:
+            full_points = challenge.goal * 25
+
         for participation in challenge.participations:
+            # Query the catches for this participant during the challenge period.
             catch_query = Catch.query.filter(
                 Catch.user_id == participation.user_id,
                 Catch.timestamp >= challenge.start_time,
@@ -384,21 +414,18 @@ def process_expired_challenges():
             if challenge.fish_id:
                 catch_query = catch_query.filter(Catch.fish_id == challenge.fish_id)
             catch_count = catch_query.count()
-            
-            if challenge.fish_id:
-                # Use the fish's worth attribute
-                full_points = catch_count * challenge.fish.worth
-            else:
-                # Use fixed multiplier 25 for any fish
-                full_points = catch_count * 25
 
             if catch_count >= challenge.goal:
                 participation.awarded_points = full_points
                 participation.success = True
             else:
-                participation.awarded_points = - (full_points / 2)
+                participation.awarded_points = -(full_points / 2)
                 participation.success = False
 
-            # Mark this participation as processed (if needed, you might add an extra flag)
             db.session.add(participation)
-        db.session.commit()
+        
+        # Mark this challenge as processed.
+        challenge.processed = True
+        db.session.add(challenge)
+    
+    db.session.commit()
