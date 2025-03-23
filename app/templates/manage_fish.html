@@ -2,41 +2,64 @@
 
 {% extends "base.html" %}
 {% block content %}
-  <div class="container mt-4">
-    <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="FFC Logo" class="logo mx-auto d-block mb-4">
+  <div class="mt-4">
     <h1 class="text-center">Verwalte die Fische</h1>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Multiplikator</th>
-          <th>Above Average Länge (cm)</th>
-          <th>Monster Länge (cm)</th>
-          <th>Worth</th>
-          <th>Aktionen</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for fish in fishes %}
+    <img
+      id="logo"
+      src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}"
+      alt="FFC Logo"
+      class="logo mx-auto d-block mb-4"
+    >
+
+    <!-- Wrap the table in a .table-responsive container -->
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
           <tr>
-            <td>{{ fish.name }}</td>
-            <td>{{ fish.multiplicator }}</td>
-            <td>{{ fish.above_average }}</td>
-            <td>{{ fish.monster }}</td>
-            <td>{{ fish.worth }}</td>
-            <td>
-              <a href="{{ url_for('main.edit_fish', fish_id=fish.id) }}" class="btn btn-primary btn-sm">Bearbeiten</a>
-            </td>
+            <th>Name</th>
+            <th>Multiplikator</th>
+            <th>Above Average Länge (cm)</th>
+            <th>Monster Länge (cm)</th>
+            <th>Worth</th>
+            <th>Aktionen</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
+        </thead>
+        <tbody>
+          {% for fish in fishes %}
+            <tr>
+              <td>{{ fish.name }}</td>
+              <td>{{ fish.multiplicator }}</td>
+              <td>{{ fish.above_average }}</td>
+              <td>{{ fish.monster }}</td>
+              <td>{{ fish.worth }}</td>
+              <td>
+                <a
+                  href="{{ url_for('main.edit_fish', fish_id=fish.id) }}"
+                  class="btn btn-primary btn-sm"
+                >
+                  Bearbeiten
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
     <!-- Zentrierter Button-Container -->
     <div class="d-flex justify-content-center">
-      <a href="{{ url_for('main.add_fish') }}" class="btn btn-success mb-3 mx-2">Fisch hinzufügen</a>
-      <a href="{{ url_for('main.delete_fish') }}" class="btn btn-danger mb-3 mx-2">Fisch löschen</a>
+      <a
+        href="{{ url_for('main.add_fish') }}"
+        class="btn btn-success mb-3 mx-2"
+      >
+        Fisch hinzufügen
+      </a>
+      <a
+        href="{{ url_for('main.delete_fish') }}"
+        class="btn btn-danger mb-3 mx-2"
+      >
+        Fisch löschen
+      </a>
     </div>
-    
   </div>
 {% endblock %}

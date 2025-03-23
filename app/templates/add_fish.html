@@ -1,94 +1,106 @@
 <!-- app/templates/add_fish.html -->
-
 {% extends "base.html" %}
 {% block content %}
-    <div class="mt-4 d-flex justify-content-center">
-        <div class="w-50">
-            <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="FFC Logo" class="logo mx-auto d-block mb-4">
-            <h1 class="text-center">Fisch hinzufügen</h1>
-            <form method="POST" action="">
-                {{ form.hidden_tag() }}
-                
-                <!-- Name Field -->
-                <div class="form-group text-center">
-                    {{ form.name.label(class="form-control-label d-block") }}
-                    {% if form.name.errors %}
-                        {{ form.name(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.name.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.name(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
-                    {% endif %}
-                </div>
-                
-                <!-- Multiplicator Field -->
-                <div class="form-group text-center">
-                    {{ form.multiplicator.label(class="form-control-label d-block") }}
-                    {% if form.multiplicator.errors %}
-                        {{ form.multiplicator(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.multiplicator.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.multiplicator(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
-                    {% endif %}
-                </div>
-                
-                <!-- Above Average Field -->
-                <div class="form-group text-center">
-                    {{ form.above_average.label(class="form-control-label d-block") }}
-                    {% if form.above_average.errors %}
-                        {{ form.above_average(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.above_average.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.above_average(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
-                    {% endif %}
-                </div>
-                
-                <!-- Monster Field -->
-                <div class="form-group text-center">
-                    {{ form.monster.label(class="form-control-label d-block") }}
-                    {% if form.monster.errors %}
-                        {{ form.monster(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.monster.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.monster(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
-                    {% endif %}
-                </div>
-                
-                <!-- Worth Field -->
-                <div class="form-group text-center">
-                    {{ form.worth.label(class="form-control-label d-block") }}
-                    {% if form.worth.errors %}
-                        {{ form.worth(class="form-control form-control-lg is-invalid mx-auto", style="max-width: 400px;") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.worth.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.worth(class="form-control form-control-lg mx-auto", style="max-width: 400px; text-align: center;") }}
-                    {% endif %}
-                </div>
-                
-                <!-- Submit Button -->
-                <div class="text-center mt-4">
-                    {{ form.submit(class="btn btn-primary btn-lg") }}
-                </div>
-            </form>
-        </div>
+<div class="container mt-4">
+  <div class="row">
+    <!-- Logo and Header Section -->
+    <div class="col-12 text-center">
+      <h1 class="mb-4">Fisch hinzufügen</h1>
+      <img 
+        id="logo" 
+        src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" 
+        alt="FFC Logo" 
+        class="img-fluid mb-3" 
+        style="max-width: 200px;"
+      >
+     
     </div>
+    <!-- Form Section -->
+    <div class="col-12 col-md-6 offset-md-3">
+      <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        
+        <!-- Name Field -->
+        <div class="mb-3">
+          {{ form.name.label(class="form-label text-center") }}
+          {% if form.name.errors %}
+            {{ form.name(class="form-control is-invalid text-center") }}
+            <div class="invalid-feedback">
+              {% for error in form.name.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.name(class="form-control text-center") }}
+          {% endif %}
+        </div>
+        
+        <!-- Multiplicator Field -->
+        <div class="mb-3">
+          {{ form.multiplicator.label(class="form-label text-center") }}
+          {% if form.multiplicator.errors %}
+            {{ form.multiplicator(class="form-control is-invalid text-center") }}
+            <div class="invalid-feedback">
+              {% for error in form.multiplicator.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.multiplicator(class="form-control text-center") }}
+          {% endif %}
+        </div>
+        
+        <!-- Above Average Field -->
+        <div class="mb-3">
+          {{ form.above_average.label(class="form-label text-center") }}
+          {% if form.above_average.errors %}
+            {{ form.above_average(class="form-control is-invalid text-center") }}
+            <div class="invalid-feedback">
+              {% for error in form.above_average.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.above_average(class="form-control text-center") }}
+          {% endif %}
+        </div>
+        
+        <!-- Monster Field -->
+        <div class="mb-3">
+          {{ form.monster.label(class="form-label text-center") }}
+          {% if form.monster.errors %}
+            {{ form.monster(class="form-control is-invalid text-center") }}
+            <div class="invalid-feedback">
+              {% for error in form.monster.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.monster(class="form-control text-center") }}
+          {% endif %}
+        </div>
+        
+        <!-- Worth Field -->
+        <div class="mb-3">
+          {{ form.worth.label(class="form-label text-center") }}
+          {% if form.worth.errors %}
+            {{ form.worth(class="form-control is-invalid text-center") }}
+            <div class="invalid-feedback">
+              {% for error in form.worth.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.worth(class="form-control text-center") }}
+          {% endif %}
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="text-center mt-4">
+          {{ form.submit(class="btn btn-primary btn-lg") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -4,16 +4,17 @@
 {% block content %}
 <div class="mt-4">
   <div class="container">
+    <h1 class="text-center">Herausforderungen</h1>
     <img
       id="logo"
       src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}"
       alt="Logo"
       class="logo mx-auto d-block mb-4"
     />
-    <h1 class="text-center">Herausforderungen</h1>
+    
     
     <!-- Meine Herausforderungen Section -->
-    <h2 class="text-center mt-4">Meine Herausforderungen</h2>
+    <h3 class="text-center mt-4">Meine Herausforderungen</h3>
     {% if my_participations %}
       <div class="table-responsive">
         <table class="table table-striped">
@@ -67,7 +68,7 @@
     {% endif %}
     
     <!-- Current Challenges Section -->
-    <h2 class="text-center mt-4">Aktuelle Herausforderungen</h2>
+    <h3 class="text-center mt-4">Aktuelle Herausforderungen</h3>
     {% if current_challenges %}
       <div class="table-responsive">
         <table class="table table-striped">
@@ -130,10 +131,10 @@
     </div>
     
     <!-- Expired Challenges Section -->
-    <h2 class="text-center mt-4">Abgelaufene Herausforderungen</h2>
+    <h3 class="text-center mt-4">Abgelaufene Herausforderungen</h3>
     {% if expired_challenges %}
       <div class="table-responsive">
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped">
           <thead class="table-success">
             <tr>
               <th>Herausforderer</th>

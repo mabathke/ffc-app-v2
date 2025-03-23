@@ -234,3 +234,12 @@ form .btn {
     display: block;
     margin: 0 auto;
 }
+
+.form-label {
+    text-align: center !important;
+    display: block;
+}
+
+.form-control {
+    text-align: center !important;
+}

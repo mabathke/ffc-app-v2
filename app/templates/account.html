@@ -2,90 +2,109 @@
 
 {% extends "base.html" %}
 {% block content %}
-<div class="mt-4">
-  <h2>Dein Account</h2>
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Mein Account</h1>
+  <!-- Logo and Main Header -->
+  <img
+    id="logo"
+    src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}"
+    alt="FFC Logo"
+    class="logo mx-auto d-block mb-4"
+  >
+  
+  
+  <!-- User Info -->
+  <h3 class="text-center">Meine Infos</h3> 
   <ul class="list-group mb-4">
-    <li class="list-group-item"><strong>Username:</strong> {{ current_user.username }}</li>
-    <li class="list-group-item"><strong>Email:</strong> {{ current_user.email }}</li>
+    <li class="list-group-item">
+      <strong>Username:</strong> {{ current_user.username }}
+    </li>
+    <li class="list-group-item">
+      <strong>Email:</strong> {{ current_user.email }}
+    </li>
   </ul>
 
   <!-- Meine Fänge Section -->
-  <h3>Meine Fänge</h3>
+  <h3 class="text-center">Meine Fänge</h3>
   {% if my_catches %}
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Fisch</th>
-          <th>Größe (cm)</th>
-          <th>Punkte</th>
-          <th>Zeitstempel</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for catch in my_catches %}
-        <tr>
-          <td>{{ catch.fish.name }}</td>
-          <td>{{ catch.length }}</td>
-          <td>{{ "%.0f"|format(catch.points) }}</td>
-          <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M') }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-responsive mb-4">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Fisch</th>
+            <th>Größe (cm)</th>
+            <th>Punkte</th>
+            <th>Zeitstempel</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for catch in my_catches %}
+          <tr>
+            <td>{{ catch.fish.name }}</td>
+            <td>{{ catch.length }}</td>
+            <td>{{ "%.0f"|format(catch.points) }}</td>
+            <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
-    <p>Du hast noch keine Fänge registriert.</p>
+    <p class="text-center">Du hast noch keine Fänge registriert.</p>
   {% endif %}
 
   <!-- Meine Herausforderungen Section -->
-  <h3>Meine Herausforderungen</h3>
+  <h3 class="text-center">Meine Herausforderungen</h3>
   {% if my_challenges %}
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Herausforderung</th>
-          <th>Status</th>
-          <th>Ergebnis</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for part in my_challenges %}
-        <tr>
-          <td>
-            {% if part.challenge.fish %}
-              {{ part.challenge.goal }} {{ part.challenge.fish.name }} fangen
-            {% else %}
-              {{ part.challenge.goal }} Fische fangen (alle Arten)
-            {% endif %}
-            <br>
-            <small>
-              Start: {{ part.challenge.start_time.strftime('%d.%m.%Y') }},
-              Ende: {{ part.challenge.expiration_time.strftime('%d.%m.%Y') }}
-            </small>
-          </td>
-          <td>
-            {% if part.challenge.expiration_time > now %}
-              Aktiv
-            {% else %}
-              Abgelaufen
-            {% endif %}
-          </td>
-          <td>
-            {% if part.challenge.expiration_time > now %}
-              -
-            {% else %}
-              {% if part.success %}
-                Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Herausforderung</th>
+            <th>Status</th>
+            <th>Ergebnis</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for part in my_challenges %}
+          <tr>
+            <td>
+              {% if part.challenge.fish %}
+                {{ part.challenge.goal }} {{ part.challenge.fish.name }} fangen
               {% else %}
-                Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                {{ part.challenge.goal }} Fische fangen (alle Arten)
               {% endif %}
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+              <br>
+              <small>
+                Start: {{ part.challenge.start_time.strftime('%d.%m.%Y') }},
+                Ende: {{ part.challenge.expiration_time.strftime('%d.%m.%Y') }}
+              </small>
+            </td>
+            <td>
+              {% if part.challenge.expiration_time > now %}
+                Aktiv
+              {% else %}
+                Abgelaufen
+              {% endif %}
+            </td>
+            <td>
+              {% if part.challenge.expiration_time > now %}
+                -
+              {% else %}
+                {% if part.success %}
+                  Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                {% else %}
+                  Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
-    <p>Du hast noch an keiner Herausforderung teilgenommen.</p>
+    <p class="text-center">Du hast noch an keiner Herausforderung teilgenommen.</p>
   {% endif %}
 </div>
 {% endblock %}

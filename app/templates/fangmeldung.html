@@ -2,69 +2,88 @@
 
 {% extends "base.html" %}
 {% block content %}
-  <div class="container mt-4">
-    <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="FFC Logo" class="logo mx-auto d-block mb-4">
-    <h1 class="text-center">Fangmeldung</h1>
-    <form method="POST">
-      {{ form.hidden_tag() }}
-      <div class="row">
-        <!-- Fish Field -->
-        <div class="col-md-6 mb-3">
-          <div class="form-group">
-            {{ form.fish.label(class="form-label") }}
-            {{ form.fish(class="form-control") }}
-            {% for error in form.fish.errors %}
-              <small class="text-danger">{{ error }}</small>
-            {% endfor %}
-          </div>
-        </div>
-        
-        <!-- Length Field -->
-        <div class="col-md-6 mb-3">
-          <div class="form-group">
-            {{ form.length.label(class="form-label") }}
-            {{ form.length(class="form-control") }}
-            {% for error in form.length.errors %}
-              <small class="text-danger">{{ error }}</small>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      <div class="text-center">
-        <button type="submit" class="btn btn-primary mt-2">{{ form.submit.label.text }}</button>
-      </div>
-    </form>
-  </div>
-  <div class="container mt-4">
-    <h2 class="text-center">Meine Fänge</h2>
-    <div class="table-responsive"> <!-- Added for full responsiveness -->
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Fisch</th>
-            <th class="d-none d-md-table-cell">Größe</th>
-            <th>Gefangen am</th>
-            <th class="d-none d-md-table-cell">Punkte</th>
-            <th>Aktionen</th> <!-- New Column for Actions -->
-          </tr>
-        </thead>
-        <tbody>
-          {% for catch in catches_per_user %}
-            <tr>
-              <td>{{ catch.fish.name }}</td>
-              <td class="d-none d-md-table-cell">{{ catch.length }}</td>
-              <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
-              <td class="d-none d-md-table-cell">{{ "%.0f" | format(catch.points) }}</td> <!-- Added responsive class -->
-              <td>
-                <!-- Delete Form -->
-                <form method="POST" action="{{ url_for('main.delete_catch', catch_id=catch.id) }}" onsubmit="return confirm('Bist du sicher, dass du diesen Fang löschen möchtest?');">
-                  <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
-                </form>
-              </td>
-            </tr>
+<div class="container mt-4">
+  <h1 class="text-center">Fangmeldung</h1>
+  <img
+    id="logo"
+    src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}"
+    alt="FFC Logo"
+    class="logo mx-auto d-block mb-4"
+  >
+  
+  
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <!-- Fish Field -->
+      <div class="col-md-6 mb-3">
+        <div class="form-group">
+          {{ form.fish.label(class="form-label") }}
+          <!-- Use .form-control for consistent sizing with the input field -->
+          {{ form.fish(class="form-control") }}
+          {% for error in form.fish.errors %}
+            <small class="text-danger">{{ error }}</small>
           {% endfor %}
-        </tbody>
-      </table>
-    </div> <!-- End of table-responsive -->
+        </div>
+      </div>
+      
+      <!-- Length Field -->
+      <div class="col-md-6 mb-3">
+        <div class="form-group">
+          {{ form.length.label(class="form-label") }}
+          {{ form.length(class="form-control") }}
+          {% for error in form.length.errors %}
+            <small class="text-danger">{{ error }}</small>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary mt-2">
+        {{ form.submit.label.text }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="container mt-4">
+  <h2 class="text-center">Meine Fänge</h2>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Fisch</th>
+          <th class="d-none d-md-table-cell">Größe</th>
+          <th>Gefangen am</th>
+          <th class="d-none d-md-table-cell">Punkte</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for catch in catches_per_user %}
+        <tr>
+          <td>{{ catch.fish.name }}</td>
+          <td class="d-none d-md-table-cell">{{ catch.length }}</td>
+          <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+          <td class="d-none d-md-table-cell">
+            {{ "%.0f"|format(catch.points) }}
+          </td>
+          <td>
+            <!-- Delete Form -->
+            <form
+              method="POST"
+              action="{{ url_for('main.delete_catch', catch_id=catch.id) }}"
+              onsubmit="return confirm('Bist du sicher, dass du diesen Fang löschen möchtest?');"
+            >
+              <button type="submit" class="btn btn-danger btn-sm">
+                Löschen
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
+</div>
 {% endblock %}

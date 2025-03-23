@@ -35,8 +35,8 @@ def home():
         ChallengeParticipation.user_id,
         func.coalesce(func.sum(ChallengeParticipation.awarded_points), 0).label('challenge_points')
     ).join(Challenge, Challenge.id == ChallengeParticipation.challenge_id)\
-    .filter(Challenge.expiration_time <= now)\
-    .group_by(ChallengeParticipation.user_id).subquery()
+     .filter(Challenge.expiration_time <= now)\
+     .group_by(ChallengeParticipation.user_id).subquery()
 
     # Join the subqueries with User to compute total points per user
     rankings = db.session.query(
@@ -47,17 +47,21 @@ def home():
      .order_by((func.coalesce(catch_subq.c.catch_points, 0) + func.coalesce(challenge_subq.c.challenge_points, 0)).desc())\
      .all()
 
-    # Query expired challenge participations where success is True (winners)
-    expired_challenges = ChallengeParticipation.query.join(Challenge)\
-                           .filter(Challenge.expiration_time <= now, ChallengeParticipation.success == True)\
-                           .order_by(ChallengeParticipation.awarded_points.desc()).all()
+    # Query *all* finished challenges (whether or not there's a winner)
+    finished_challenges = Challenge.query \
+        .filter(Challenge.expiration_time <= now) \
+        .order_by(Challenge.expiration_time.desc()) \
+        .all()
 
-    return render_template('dashboard.html',
-                           title='Home',
-                           catches=catches,
-                           catches_per_user=catches_per_user,
-                           rankings=rankings,
-                           expired_challenges=expired_challenges)
+    return render_template(
+        'dashboard.html',
+        title='Home',
+        catches=catches,
+        catches_per_user=catches_per_user,
+        rankings=rankings,
+        finished_challenges=finished_challenges  # Pass the finished challenges
+    )
+
 
 @main.route("/register", methods=['GET', 'POST'])
 @limiter.limit("10 per hour") # to prevent brute force attacks
