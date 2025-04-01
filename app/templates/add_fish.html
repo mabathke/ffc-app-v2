@@ -13,7 +13,6 @@
         class="img-fluid mb-3" 
         style="max-width: 200px;"
       >
-     
     </div>
     <!-- Form Section -->
     <div class="col-12 col-md-6 offset-md-3">
@@ -92,6 +91,21 @@
             </div>
           {% else %}
             {{ form.worth(class="form-control text-center") }}
+          {% endif %}
+        </div>
+        
+        <!-- Fish Type Field -->
+        <div class="mb-3">
+          {{ form.type.label(class="form-label text-center") }}
+          {% if form.type.errors %}
+            {{ form.type(class="form-control is-invalid text-center") }}
+            <div class="invalid-feedback">
+              {% for error in form.type.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.type(class="form-control text-center") }}
           {% endif %}
         </div>
         

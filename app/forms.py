@@ -46,6 +46,11 @@ class AddFishForm(FlaskForm):
     above_average = IntegerField('Above Average Length', validators=[DataRequired()])
     monster = IntegerField('Monster Length', validators=[DataRequired()])
     worth = FloatField('Worth', validators=[DataRequired()])
+    type = SelectField(
+        'Fischtyp',
+        choices=[('Weißfisch', 'Weißfisch'), ('Raubfisch', 'Raubfisch')],
+        validators=[DataRequired()]
+    )
     submit = SubmitField('Add Fish')
 
     def validate_name(self, name):
@@ -60,6 +65,7 @@ class AddFishForm(FlaskForm):
             self.monster.errors.append('Die Monster-Länge muss größer als die Above Average Länge sein.')
             return False
         return True
+
 
 class DeleteFishForm(FlaskForm):
     name = StringField('Fischname', validators=[DataRequired(), Length(min=2, max=50)])
@@ -80,7 +86,13 @@ class EditFishForm(FlaskForm):
     above_average = IntegerField('Above Average Length', validators=[DataRequired()])
     monster = IntegerField('Monster Length', validators=[DataRequired()])
     worth = FloatField('Worth', validators=[DataRequired()])
+    type = SelectField(
+        'Fischtyp',
+        choices=[('Weißfisch', 'Weißfisch'), ('Raubfisch', 'Raubfisch')],
+        validators=[DataRequired()]
+    )
     submit = SubmitField('Update Fish')
+
 
 class CreateChallengeForm(FlaskForm):
     # Optional fish selection. "0" means all fish.

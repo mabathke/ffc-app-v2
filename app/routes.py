@@ -143,15 +143,14 @@ def add_fish():
             multiplicator=form.multiplicator.data,
             above_average=form.above_average.data,
             monster=form.monster.data,
-            worth=form.worth.data,  # New field for challenge points
+            worth=form.worth.data,
+            type=form.type.data  # Include the fish type
         )
         db.session.add(fish)
         db.session.commit()
         flash(f'Fisch "{form.name.data}" wurde hinzugefügt.', 'success')
         return redirect(url_for('main.manage_fish'))
     return render_template('add_fish.html', title='Fisch hinzufügen', form=form)
-
-
 
 @main.route("/admin/delete_fish", methods=['GET', 'POST'])
 @login_required
@@ -230,7 +229,6 @@ def fangmeldung():
         else:
             points = 0  # Fallback (shouldn't be reached)
 
-        
         # Log the catch with calculated points
         new_catch = Catch(
             length=length,
@@ -259,6 +257,7 @@ def edit_fish(fish_id):
         fish.above_average = form.above_average.data
         fish.monster = form.monster.data
         fish.worth = form.worth.data
+        fish.type = form.type.data  # Update the fish type
         db.session.commit()
         flash(f'Die Werte von "{fish.name}" wurden erfolgreich aktualisiert.', 'success')
         return redirect(url_for('main.manage_fish'))
@@ -268,6 +267,7 @@ def edit_fish(fish_id):
         form.above_average.data = fish.above_average
         form.monster.data = fish.monster
         form.worth.data = fish.worth
+        form.type.data = fish.type  # Pre-select the current fish type
 
     return render_template('edit_fish.html', title='Fisch bearbeiten', form=form, fish=fish)
 

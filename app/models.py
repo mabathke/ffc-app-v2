@@ -30,12 +30,14 @@ class Fish(db.Model):
     multiplicator = db.Column(db.Float, nullable=False, default=1.0)
     above_average = db.Column(db.Integer, nullable=False)
     monster = db.Column(db.Integer, nullable=False)
-    worth = db.Column(db.Float, nullable=False, default=25)  # New attribute for challenge points
+    worth = db.Column(db.Float, nullable=False, default=25)
+    type = db.Column(db.String(20), nullable=False, default="Weißfisch")  # New field for fish type
     catches = db.relationship('Catch', backref='fish', lazy=True)
 
     def __repr__(self):
         return (f"Fish('{self.name}', multiplicator={self.multiplicator}, "
-                f"above_average={self.above_average}, monster={self.monster}, worth={self.worth})")
+                f"above_average={self.above_average}, monster={self.monster}, "
+                f"worth={self.worth}, type={self.type})")
 
     
 class Catch(db.Model):

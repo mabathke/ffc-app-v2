@@ -43,6 +43,15 @@
         {% endfor %}
       </div>
       
+      <!-- Fish Type Field -->
+      <div class="mb-3">
+        {{ form.type.label(class="form-label") }}
+        {{ form.type(class="form-control", placeholder="Fischtyp") }}
+        {% for error in form.type.errors %}
+          <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+      
       <div class="text-center">
         {{ form.submit(class="btn btn-primary") }}
         <a href="{{ url_for('main.manage_fish') }}" class="btn btn-secondary">Abbrechen</a>
