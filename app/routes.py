@@ -405,10 +405,17 @@ def join_challenge(challenge_id):
     if participation:
         flash("Du bist bereits dieser Challenge beigetreten.", "info")
     else:
-        # Create a new participation record for the current user
+        # Calculate the challenge duration from the Challenge's start and expiration times
+        challenge_duration = challenge.expiration_time - challenge.start_time
+        joined_time = datetime.utcnow()
+        # Set the personal expiration time to be join time + challenge duration
+        personal_expiration = joined_time + challenge_duration
+
         new_participation = ChallengeParticipation(
             challenge_id=challenge_id,
-            user_id=current_user.id
+            user_id=current_user.id,
+            joined_at=joined_time,
+            participation_expiration=personal_expiration
         )
         db.session.add(new_participation)
         db.session.commit()
@@ -416,38 +423,32 @@ def join_challenge(challenge_id):
     
     return redirect(url_for("main.challenges"))
 
-
 def process_expired_challenges():
     now = datetime.utcnow()
-    # Get expired challenges that haven't been processed yet.
+    # Process challenges whose global expiration has passed
     expired_challenges = Challenge.query.filter(
         Challenge.expiration_time <= now,
         Challenge.processed == False
     ).all()
 
     for challenge in expired_challenges:
-        # Calculate total full points based on the sum of amounts for each condition.
+        # Total potential points is the sum of all condition amounts.
         full_points = sum(cond.amount for cond in challenge.conditions)
 
         for participation in challenge.participations:
             all_conditions_met = True
-
-            # For each condition, check whether the participant meets the goal.
             for condition in challenge.conditions:
+                # Use the participation's personal window instead of the challenge's global window.
                 catch_query = Catch.query.filter(
                     Catch.user_id == participation.user_id,
-                    Catch.timestamp >= challenge.start_time,
-                    Catch.timestamp <= challenge.expiration_time
+                    Catch.timestamp >= participation.joined_at,
+                    Catch.timestamp <= participation.participation_expiration
                 )
-
                 if condition.condition_type == "specific":
-                    # For specific conditions, filter by the required fish.
                     catch_query = catch_query.filter(Catch.fish_id == condition.fish_id)
                 elif condition.condition_type == "category":
-                    # For category conditions, join with Fish to filter by fish type.
                     catch_query = catch_query.join(Fish).filter(Fish.type == condition.fish_type)
-                # For "any" conditions, no extra filter is needed.
-
+                # For "any", no extra filtering is needed.
                 catch_count = catch_query.count()
                 if catch_count < condition.goal:
                     all_conditions_met = False
@@ -467,4 +468,5 @@ def process_expired_challenges():
         db.session.add(challenge)
 
     db.session.commit()
+
 
