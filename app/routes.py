@@ -221,15 +221,15 @@ def fangmeldung():
         kapital = selected_fish.above_average  # This is our threshold for "under kapital"
         monster = selected_fish.monster
         
-        # Calculate points using the new rules:
         if length < kapital:
             points = length * multiplicator
-        elif kapital <= length <= monster:
-            points = length * (multiplicator + 0.2)
-        elif length > monster:
-            points = length * (multiplicator + 0.5)
+        elif kapital <= length < monster:
+            points = 150
+        elif length >= monster:
+            points = 300
         else:
-            points = 0  # Fallback
+            points = 0  # Fallback (shouldn't be reached)
+
         
         # Log the catch with calculated points
         new_catch = Catch(
