@@ -81,7 +81,6 @@ class Challenge(db.Model):
     start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expiration_time = db.Column(db.DateTime, nullable=False)
     description = db.Column(db.String(255))
-    processed = db.Column(db.Boolean, default=False, nullable=False)
 
     # Relationships
     user = db.relationship('User', backref='created_challenges')
@@ -99,14 +98,18 @@ class ChallengeParticipation(db.Model):
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     joined_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    participation_expiration = db.Column(db.DateTime, nullable=True)  # New column for per-user expiration
+    participation_expiration = db.Column(db.DateTime, nullable=True)
     awarded_points = db.Column(db.Float, default=0)
-    success = db.Column(db.Boolean, default=False)  # True if challenge met, False if not.
+    success = db.Column(db.Boolean, default=False)
+    processed = db.Column(db.Boolean, default=False)  # New column
 
     user = db.relationship('User', backref='challenge_participations')
 
     def __repr__(self):
-        return f"<ChallengeParticipation Challenge:{self.challenge_id} User:{self.user_id} Awarded:{self.awarded_points} Success:{self.success}>"
+        return (f"<ChallengeParticipation Challenge:{self.challenge_id} "
+                f"User:{self.user_id} Awarded:{self.awarded_points} "
+                f"Success:{self.success} Processed:{self.processed}>")
+
 
 
 
