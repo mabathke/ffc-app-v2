@@ -4,13 +4,8 @@
 <div class="mt-4">
   <div class="container">
     <h1 class="text-center">Herausforderungen</h1>
-    <img
-      id="logo"
-      src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}"
-      alt="Logo"
-      class="logo mx-auto d-block mb-4"
-    />
-    
+    <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="Logo" class="logo mx-auto d-block mb-4">
+
     <!-- Meine Herausforderungen Section -->
     <h3 class="text-center mt-4">Meine Herausforderungen</h3>
     {% if my_participations %}
@@ -44,21 +39,21 @@
                 </small>
               </td>
               <td>
-                {% if part.challenge.expiration_time > now %}
-                  Aktiv
+                {% if part.processed %}
+                  {% if part.success %}
+                    Gewonnen
+                  {% else %}
+                    Verloren
+                  {% endif %}
                 {% else %}
-                  Abgelaufen
+                  Noch nicht ausgewertet
                 {% endif %}
               </td>
               <td>
-                {% if part.challenge.expiration_time > now %}
-                  -
+                {% if part.processed %}
+                  {{ "%.0f"|format(part.awarded_points) }} Punkte
                 {% else %}
-                  {% if part.success %}
-                    Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                  {% else %}
-                    Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                  {% endif %}
+                  -
                 {% endif %}
               </td>
             </tr>
@@ -69,8 +64,8 @@
     {% else %}
       <p class="text-center">Du hast noch keine Challenges beigetreten.</p>
     {% endif %}
-    
-    <!-- Current Challenges Section -->
+
+    <!-- Aktuelle Herausforderungen Section -->
     <h3 class="text-center mt-4">Aktuelle Herausforderungen</h3>
     {% if current_challenges %}
       <div class="table-responsive">
@@ -83,7 +78,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for challenge in current_challenges[:3] %}
+            {% for challenge in current_challenges %}
             <tr>
               <td>
                 {% for cond in challenge.conditions %}
@@ -107,19 +102,16 @@
                 {% endif %}
               </td>
               <td>
-                {% set joined = false %}
+                {% set ns = namespace(joined=false) %}
                 {% for part in challenge.participations %}
                   {% if part.user_id == current_user.id %}
-                    {% set joined = true %}
+                    {% set ns.joined = true %}
                   {% endif %}
                 {% endfor %}
-                {% if joined %}
-                  <button class="btn btn-secondary btn-sm" disabled>Beigetreten</button>
+                {% if ns.joined %}
+                  <span>Bereits beigetreten</span>
                 {% else %}
-                  <a
-                    href="{{ url_for('main.join_challenge', challenge_id=challenge.id) }}"
-                    class="btn btn-success btn-sm"
-                  >
+                  <a href="{{ url_for('main.join_challenge', challenge_id=challenge.id) }}" class="btn btn-success btn-sm">
                     Beitreten
                   </a>
                 {% endif %}
@@ -132,14 +124,9 @@
     {% else %}
       <p class="text-center">Zurzeit gibt es keine aktiven Herausforderungen.</p>
     {% endif %}
-    <div class="text-center mb-4">
-      <a href="{{ url_for('main.create_challenge') }}" class="btn btn-success">
-        Herausforderung erstellen
-      </a>
-    </div>
-    
-    <!-- Expired Challenges Section -->
-    <h3 class="text-center mt-4">Abgelaufene Herausforderungen</h3>
+
+    <!-- Abgeschlossene Herausforderungen Section -->
+    <h3 class="text-center mt-4">Abgeschlossene Herausforderungen</h3>
     {% if expired_challenges %}
       <div class="table-responsive">
         <table class="table table-striped">
@@ -147,7 +134,7 @@
             <tr>
               <th>Herausforderer</th>
               <th>Herausforderung</th>
-              <th>Gewinner</th>
+              <th>Ergebnisse</th>
             </tr>
           </thead>
           <tbody>
@@ -165,28 +152,30 @@
                   {% endif %}
                   {% if not loop.last %}<br>{% endif %}
                 {% endfor %}
-                <br />
+                <br>
                 <small>
                   Start: {{ challenge.start_time.strftime('%d.%m.%Y') }},
                   Ende: {{ challenge.expiration_time.strftime('%d.%m.%Y') }}
                 </small>
               </td>
               <td>
-                {% set winners = [] %}
-                {% for part in challenge.participations %}
-                  {% if part.success %}
-                    {% set _ = winners.append(part) %}
-                  {% endif %}
-                {% endfor %}
-                {% if winners %}
-                  {% for w in winners %}
+                {% if challenge.participations %}
+                  {% for part in challenge.participations %}
                   <div>
-                    <strong>{{ w.user.username }}</strong>:
-                    {{ "%.0f"|format(w.awarded_points) }} Punkte
+                    <strong>{{ part.user.username }}</strong>:
+                    {% if part.processed %}
+                      {% if part.success %}
+                        Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                      {% else %}
+                        Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                      {% endif %}
+                    {% else %}
+                      Nicht ausgewertet
+                    {% endif %}
                   </div>
                   {% endfor %}
                 {% else %}
-                  <span>Keine Gewinner</span>
+                  <span>Keine Teilnahmen</span>
                 {% endif %}
               </td>
             </tr>
@@ -195,8 +184,14 @@
         </table>
       </div>
     {% else %}
-      <p class="text-center">Es gibt keine abgelaufenen Herausforderungen.</p>
+      <p class="text-center">Es gibt keine abgeschlossenen Herausforderungen.</p>
     {% endif %}
+
+    <div class="text-center mb-4">
+      <a href="{{ url_for('main.create_challenge') }}" class="btn btn-success">
+        Herausforderung erstellen
+      </a>
+    </div>
   </div>
 </div>
 {% endblock %}

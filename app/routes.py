@@ -47,7 +47,7 @@ def home():
      .order_by((func.coalesce(catch_subq.c.catch_points, 0) + func.coalesce(challenge_subq.c.challenge_points, 0)).desc())\
      .all()
 
-    # Query *all* finished challenges (whether or not there's a winner)
+    # Query all finished challenges (i.e. global expiration has passed)
     finished_challenges = Challenge.query \
         .filter(Challenge.expiration_time <= now) \
         .order_by(Challenge.expiration_time.desc()) \
@@ -59,7 +59,7 @@ def home():
         catches=catches,
         catches_per_user=catches_per_user,
         rankings=rankings,
-        finished_challenges=finished_challenges  # Pass the finished challenges
+        finished_challenges=finished_challenges  # Now using conditions instead of challenge.fish / challenge.goal
     )
 
 
@@ -100,7 +100,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
-            process_expired_challenges()
+            process_expired_participations()
             next_page = request.args.get('next')
             flash('Du wurdest erfolgreich eingeloggt!', 'success')
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
@@ -220,21 +220,22 @@ def fangmeldung():
         kapital = selected_fish.above_average  # This is our threshold for "under kapital"
         monster = selected_fish.monster
         
+        points = length * multiplicator
         if length < kapital:
-            points = length * multiplicator
+            points_to_add = points
         elif kapital <= length < monster:
-            points = 150
+            points_to_add = points + 150
         elif length >= monster:
-            points = 300
+            points_to_add = points + 300
         else:
-            points = 0  # Fallback (shouldn't be reached)
+            points_to_add = 0  # Fallback (shouldn't be reached)
 
         # Log the catch with calculated points
         new_catch = Catch(
             length=length,
             fish_id=selected_fish.id,
             user_id=current_user.id,
-            points=points
+            points=points_to_add
         )
         db.session.add(new_catch)
         db.session.commit()
@@ -310,8 +311,8 @@ def delete_catch(catch_id):
 @main.route("/challenges")
 @login_required
 def challenges():
-    # Process expired challenges if necessary
-    process_expired_challenges()
+    # Process participations (if needed, but classification is now solely by expiration)
+    process_expired_participations()
     
     now = datetime.utcnow()
     current_challenges = Challenge.query.filter(Challenge.expiration_time > now).all()
@@ -323,6 +324,9 @@ def challenges():
                            expired_challenges=expired_challenges,
                            my_participations=my_participations,
                            now=now)
+
+
+
 
 
 @main.route("/create_challenge", methods=['GET', 'POST'])
@@ -348,12 +352,11 @@ def create_challenge():
         else:
             expiration = datetime.utcnow() + timedelta(weeks=1)
 
-        # Create the challenge (note: we no longer use fish_id or goal in Challenge)
+        # Create the challenge (note: 'processed' is no longer used)
         challenge = Challenge(
             user_id=current_user.id,
             expiration_time=expiration,
-            description=form.description.data,
-            processed=False
+            description=form.description.data
         )
         db.session.add(challenge)
         db.session.commit()  # Commit so that challenge.id is available
@@ -386,7 +389,6 @@ def create_challenge():
         return redirect(url_for("main.challenges"))
     else:
         if request.method == "POST":
-            # Log errors to help debug why validation might be failing
             print("Form errors:", form.errors)
 
     return render_template("create_challenge.html", title="Challenge erstellen", form=form)
@@ -423,50 +425,62 @@ def join_challenge(challenge_id):
     
     return redirect(url_for("main.challenges"))
 
-def process_expired_challenges():
+def process_expired_participations():
     now = datetime.utcnow()
-    # Process challenges whose global expiration has passed
-    expired_challenges = Challenge.query.filter(
-        Challenge.expiration_time <= now,
-        Challenge.processed == False
-    ).all()
-
-    for challenge in expired_challenges:
-        # Total potential points is the sum of all condition amounts.
-        full_points = sum(cond.amount for cond in challenge.conditions)
-
-        for participation in challenge.participations:
-            all_conditions_met = True
-            for condition in challenge.conditions:
-                # Use the participation's personal window instead of the challenge's global window.
-                catch_query = Catch.query.filter(
-                    Catch.user_id == participation.user_id,
-                    Catch.timestamp >= participation.joined_at,
-                    Catch.timestamp <= participation.participation_expiration
-                )
-                if condition.condition_type == "specific":
-                    catch_query = catch_query.filter(Catch.fish_id == condition.fish_id)
-                elif condition.condition_type == "category":
-                    catch_query = catch_query.join(Fish).filter(Fish.type == condition.fish_type)
-                # For "any", no extra filtering is needed.
-                catch_count = catch_query.count()
-                if catch_count < condition.goal:
-                    all_conditions_met = False
-                    break
-
-            if all_conditions_met:
-                participation.awarded_points = full_points
-                participation.success = True
-            else:
-                participation.awarded_points = -(full_points / 2)
-                participation.success = False
-
-            db.session.add(participation)
-
-        # Mark the challenge as processed.
-        challenge.processed = True
-        db.session.add(challenge)
-
+    # Retrieve all ChallengeParticipation records that haven't been processed.
+    participations = ChallengeParticipation.query.filter_by(processed=False).all()
+    
+    for part in participations:
+        challenge = part.challenge
+        # Calculate the challenge duration (global)
+        global_duration = challenge.expiration_time - challenge.start_time
+        
+        # Determine if we should process this participation:
+        # We process it if EITHER:
+        #   (a) The user's personal window (participation_expiration) has passed, OR
+        #   (b) The user has met all conditions before their window expires.
+        #
+        # Note: Even if the global challenge hasn't expired,
+        # a user may meet the conditions early and then be processed immediately.
+        
+        # Check catches from when the user joined up to now.
+        conditions_met_early = True
+        for cond in challenge.conditions:
+            catch_query = Catch.query.filter(
+                Catch.user_id == part.user_id,
+                Catch.timestamp >= part.joined_at,
+                Catch.timestamp <= now
+            )
+            if cond.condition_type == "specific":
+                catch_query = catch_query.filter(Catch.fish_id == cond.fish_id)
+            elif cond.condition_type == "category":
+                catch_query = catch_query.join(Fish).filter(Fish.type == cond.fish_type)
+            # For "any", no additional filter is needed.
+            
+            if catch_query.count() < cond.goal:
+                conditions_met_early = False
+                break
+        
+        # If the conditions have been met early, process immediately.
+        if conditions_met_early:
+            total_points = sum(cond.amount for cond in challenge.conditions)
+            part.awarded_points = total_points
+            part.success = True
+            part.processed = True
+            db.session.add(part)
+        # Otherwise, if the personal participation window has expired, process as failure if conditions aren't met.
+        elif now >= part.participation_expiration:
+            total_points = sum(cond.amount for cond in challenge.conditions)
+            # Option: you could re-check here (using the full window) to see if conditions are met exactly.
+            # For now, we'll assume that if conditions weren't met early, they haven't been met.
+            part.awarded_points = -(total_points / 2)
+            part.success = False
+            part.processed = True
+            db.session.add(part)
+        # Otherwise, the participation is still active (conditions not met yet and window not expired),
+        # so we leave it unprocessed.
     db.session.commit()
+
+
 
 
