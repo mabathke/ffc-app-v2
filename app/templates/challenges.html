@@ -1,5 +1,4 @@
 <!-- app/templates/challenges.html -->
-
 {% extends "base.html" %}
 {% block content %}
 <div class="mt-4">
@@ -11,7 +10,6 @@
       alt="Logo"
       class="logo mx-auto d-block mb-4"
     />
-    
     
     <!-- Meine Herausforderungen Section -->
     <h3 class="text-center mt-4">Meine Herausforderungen</h3>
@@ -29,11 +27,16 @@
             {% for part in my_participations %}
             <tr>
               <td>
-                {% if part.challenge.fish %}
-                  {{ part.challenge.goal }} {{ part.challenge.fish.name }} fangen
-                {% else %}
-                  {{ part.challenge.goal }} Fische fangen (alle Arten)
-                {% endif %}
+                {% for cond in part.challenge.conditions %}
+                  {% if cond.condition_type == 'specific' and cond.fish %}
+                    {{ cond.goal }} {{ cond.fish.name }} fangen
+                  {% elif cond.condition_type == 'category' and cond.fish_type %}
+                    {{ cond.goal }} {{ cond.fish_type }} fangen
+                  {% else %}
+                    {{ cond.goal }} Fische fangen
+                  {% endif %}
+                  {% if not loop.last %}<br>{% endif %}
+                {% endfor %}
                 <br />
                 <small>
                   Start: {{ part.challenge.start_time.strftime('%d.%m.%Y') }},
@@ -83,11 +86,16 @@
             {% for challenge in current_challenges[:3] %}
             <tr>
               <td>
-                {% if challenge.fish %}
-                  {{ challenge.goal }} {{ challenge.fish.name }} fangen
-                {% else %}
-                  {{ challenge.goal }} Fische fangen (alle Arten)
-                {% endif %}
+                {% for cond in challenge.conditions %}
+                  {% if cond.condition_type == 'specific' and cond.fish %}
+                    {{ cond.goal }} {{ cond.fish.name }} fangen
+                  {% elif cond.condition_type == 'category' and cond.fish_type %}
+                    {{ cond.goal }} {{ cond.fish_type }} fangen
+                  {% else %}
+                    {{ cond.goal }} Fische fangen
+                  {% endif %}
+                  {% if not loop.last %}<br>{% endif %}
+                {% endfor %}
               </td>
               <td>
                 {% set remaining = challenge.expiration_time - now %}
@@ -147,11 +155,16 @@
             <tr>
               <td>{{ challenge.user.username }}</td>
               <td>
-                {% if challenge.fish %}
-                  {{ challenge.goal }} {{ challenge.fish.name }} fangen
-                {% else %}
-                  {{ challenge.goal }} Fische fangen (alle Arten)
-                {% endif %}
+                {% for cond in challenge.conditions %}
+                  {% if cond.condition_type == 'specific' and cond.fish %}
+                    {{ cond.goal }} {{ cond.fish.name }} fangen
+                  {% elif cond.condition_type == 'category' and cond.fish_type %}
+                    {{ cond.goal }} {{ cond.fish_type }} fangen
+                  {% else %}
+                    {{ cond.goal }} Fische fangen
+                  {% endif %}
+                  {% if not loop.last %}<br>{% endif %}
+                {% endfor %}
                 <br />
                 <small>
                   Start: {{ challenge.start_time.strftime('%d.%m.%Y') }},

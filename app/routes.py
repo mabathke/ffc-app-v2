@@ -4,7 +4,7 @@ from functools import wraps
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from app.forms import (RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, 
                        FangmeldungForm, EditFishForm, GenerateInviteForm, CreateChallengeForm)
-from app.models import ChallengeParticipation, User, Fish, Catch, Invitation, Challenge, Catch
+from app.models import ChallengeCondition, ChallengeParticipation, User, Fish, Catch, Invitation, Challenge, Catch
 from app import db, bcrypt, limiter
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
@@ -329,12 +329,14 @@ def challenges():
 @login_required
 def create_challenge():
     form = CreateChallengeForm()
-    # Populate fish choices: "0" means all fish, then each fish is selectable
+    # Populate fish choices for each condition form (for 'specific' conditions)
     fishes = Fish.query.all()
-    form.fish.choices = [("0", "Alle Fische")] + [(str(fish.id), fish.name) for fish in fishes]
+    fish_choices = [(fish.id, fish.name) for fish in fishes]
+    for condition_form in form.conditions:
+        condition_form.fish.choices = fish_choices
 
     if form.validate_on_submit():
-        # Determine the expiration based on the time_limit field.
+        # Determine expiration based on time_limit field
         if form.time_limit.data == "2 minute":
             expiration = datetime.utcnow() + timedelta(minutes=2)
         elif form.time_limit.data == "1 day":
@@ -344,27 +346,49 @@ def create_challenge():
         elif form.time_limit.data == "1 month":
             expiration = datetime.utcnow() + timedelta(days=30)
         else:
-            expiration = datetime.utcnow() + timedelta(weeks=1)  # default
+            expiration = datetime.utcnow() + timedelta(weeks=1)
 
-        # If "0" is selected, set fish_id to None.
-        fish_id = None
-        if form.fish.data != "0":
-            fish_id = int(form.fish.data)
-
-        # Create the challenge using the correct field (user_id)
+        # Create the challenge (note: we no longer use fish_id or goal in Challenge)
         challenge = Challenge(
             user_id=current_user.id,
-            fish_id=fish_id,
-            goal=form.goal.data,
             expiration_time=expiration,
-            description=form.description.data
+            description=form.description.data,
+            processed=False
         )
         db.session.add(challenge)
+        db.session.commit()  # Commit so that challenge.id is available
+
+        # Process each condition entered in the form
+        for condition_data in form.conditions.entries:
+            cond_type = condition_data.form.condition_type.data
+            goal = condition_data.form.goal.data
+            amount = condition_data.form.amount.data
+            # Initialize to None; these will be set based on condition type
+            fish_id = None
+            fish_type = None
+            if cond_type == 'specific':
+                fish_id = condition_data.form.fish.data
+            elif cond_type == 'category':
+                fish_type = condition_data.form.fish_type.data
+
+            new_condition = ChallengeCondition(
+                challenge_id=challenge.id,
+                condition_type=cond_type,
+                goal=goal,
+                amount=amount,
+                fish_id=fish_id,
+                fish_type=fish_type
+            )
+            db.session.add(new_condition)
         db.session.commit()
 
         flash("Herausforderung wurde erfolgreich erstellt.", "success")
         return redirect(url_for("main.challenges"))
-    
+    else:
+        if request.method == "POST":
+            # Log errors to help debug why validation might be failing
+            print("Form errors:", form.errors)
+
     return render_template("create_challenge.html", title="Challenge erstellen", form=form)
 
 @main.route("/join_challenge/<int:challenge_id>")
@@ -395,31 +419,41 @@ def join_challenge(challenge_id):
 
 def process_expired_challenges():
     now = datetime.utcnow()
-    # Only get challenges that have expired and have not been processed yet.
+    # Get expired challenges that haven't been processed yet.
     expired_challenges = Challenge.query.filter(
         Challenge.expiration_time <= now,
         Challenge.processed == False
     ).all()
 
     for challenge in expired_challenges:
-        # Calculate full potential points based on the challenge goal.
-        if challenge.fish:
-            full_points = challenge.goal * challenge.fish.worth
-        else:
-            full_points = challenge.goal * 25
+        # Calculate total full points based on the sum of amounts for each condition.
+        full_points = sum(cond.amount for cond in challenge.conditions)
 
         for participation in challenge.participations:
-            # Query the catches for this participant during the challenge period.
-            catch_query = Catch.query.filter(
-                Catch.user_id == participation.user_id,
-                Catch.timestamp >= challenge.start_time,
-                Catch.timestamp <= challenge.expiration_time
-            )
-            if challenge.fish_id:
-                catch_query = catch_query.filter(Catch.fish_id == challenge.fish_id)
-            catch_count = catch_query.count()
+            all_conditions_met = True
 
-            if catch_count >= challenge.goal:
+            # For each condition, check whether the participant meets the goal.
+            for condition in challenge.conditions:
+                catch_query = Catch.query.filter(
+                    Catch.user_id == participation.user_id,
+                    Catch.timestamp >= challenge.start_time,
+                    Catch.timestamp <= challenge.expiration_time
+                )
+
+                if condition.condition_type == "specific":
+                    # For specific conditions, filter by the required fish.
+                    catch_query = catch_query.filter(Catch.fish_id == condition.fish_id)
+                elif condition.condition_type == "category":
+                    # For category conditions, join with Fish to filter by fish type.
+                    catch_query = catch_query.join(Fish).filter(Fish.type == condition.fish_type)
+                # For "any" conditions, no extra filter is needed.
+
+                catch_count = catch_query.count()
+                if catch_count < condition.goal:
+                    all_conditions_met = False
+                    break
+
+            if all_conditions_met:
                 participation.awarded_points = full_points
                 participation.success = True
             else:
@@ -427,9 +461,10 @@ def process_expired_challenges():
                 participation.success = False
 
             db.session.add(participation)
-        
-        # Mark this challenge as processed.
+
+        # Mark the challenge as processed.
         challenge.processed = True
         db.session.add(challenge)
-    
+
     db.session.commit()
+

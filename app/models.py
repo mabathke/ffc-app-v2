@@ -78,21 +78,19 @@ class Challenge(db.Model):
     __tablename__ = 'challenge'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    fish_id = db.Column(db.Integer, db.ForeignKey('fish.id'), nullable=True)
-    goal = db.Column(db.Integer, nullable=False)
     start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expiration_time = db.Column(db.DateTime, nullable=False)
     description = db.Column(db.String(255))
-    processed = db.Column(db.Boolean, default=False, nullable=False)  # New field
+    processed = db.Column(db.Boolean, default=False, nullable=False)
 
     # Relationships
     user = db.relationship('User', backref='created_challenges')
-    fish = db.relationship('Fish')
+    conditions = db.relationship('ChallengeCondition', backref='challenge', lazy=True)
     participations = db.relationship('ChallengeParticipation', backref='challenge', lazy=True)
 
     def __repr__(self):
-        target = "ALL" if not self.fish_id else self.fish.name
-        return f"<Challenge id:{self.id} User:{self.user_id}, Target:{target}, Goal:{self.goal}>"
+        return f"<Challenge id:{self.id} User:{self.user_id} Exp:{self.expiration_time}>"
+
 
     
 class ChallengeParticipation(db.Model):
@@ -108,3 +106,23 @@ class ChallengeParticipation(db.Model):
 
     def __repr__(self):
         return f"<ChallengeParticipation Challenge:{self.challenge_id} User:{self.user_id} Awarded:{self.awarded_points} Success:{self.success}>"
+
+
+class ChallengeCondition(db.Model):
+    __tablename__ = 'challenge_condition'
+    id = db.Column(db.Integer, primary_key=True)
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False)
+    condition_type = db.Column(db.String(20), nullable=False)  # e.g., 'specific', 'category', or 'any'
+    goal = db.Column(db.Integer, nullable=False)   # Required number of fish/catches
+    amount = db.Column(db.Float, nullable=False)     # Points value or weighting for this condition
+
+    # Used if condition_type is 'specific'
+    fish_id = db.Column(db.Integer, db.ForeignKey('fish.id'), nullable=True)
+    # Used if condition_type is 'category'
+    fish_type = db.Column(db.String(20), nullable=True)
+
+    # Optional relationship for fish_id
+    fish = db.relationship('Fish')
+
+    def __repr__(self):
+        return f"<ChallengeCondition id:{self.id} type:{self.condition_type} goal:{self.goal} amount:{self.amount}>"

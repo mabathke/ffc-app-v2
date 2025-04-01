@@ -1,8 +1,10 @@
 # app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import (StringField, SelectField, FloatField, PasswordField, SubmitField,
-                        BooleanField, IntegerField, TextAreaField)
+from wtforms import (
+    StringField, SelectField, FloatField, PasswordField, SubmitField,
+    BooleanField, IntegerField, TextAreaField, FieldList, FormField
+)
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from app.models import User, Fish, Invitation
 
@@ -94,17 +96,37 @@ class EditFishForm(FlaskForm):
     submit = SubmitField('Update Fish')
 
 
+class ChallengeConditionForm(FlaskForm):
+    condition_type = SelectField(
+        'Bedingungstyp',
+        choices=[('specific', 'Spezifisch'), ('category', 'Kategorie'), ('any', 'Beliebig')],
+        validators=[DataRequired()]
+    )
+    goal = IntegerField('Ziel: Anzahl Fische', validators=[DataRequired()])
+    amount = FloatField('Punkte Wert', validators=[DataRequired()])
+    # Only used when condition_type is 'specific'
+    fish = SelectField('Fisch', coerce=int, choices=[], validators=[])
+    # Only used when condition_type is 'category'
+    fish_type = SelectField(
+        'Fischtyp',
+        choices=[('Weißfisch', 'Weißfisch'), ('Raubfisch', 'Raubfisch')],
+        validators=[]
+    )
+    #needs to be done here to let the form use the main forms CSRF token
+    class Meta:
+        csrf = False
+
 class CreateChallengeForm(FlaskForm):
-    # Optional fish selection. "0" means all fish.
-    fish = SelectField('Fisch auswählen (optional)', validators=[DataRequired()])
-    goal = IntegerField('Ziel: Anzahl Fische fangen', validators=[DataRequired()])
+    # Remove the old "fish" and "goal" fields to use the conditions instead.
     time_limit = SelectField('Zeitlimit', choices=[
-        ('2 minute', '2 Minuten'),  # Testing option
+        ('2 minute', '2 Minuten'),
         ('1 day', '1 Tag'),
         ('1 week', '1 Woche'),
         ('1 month', '1 Monat')
     ], validators=[DataRequired()])
     description = TextAreaField('Beschreibung (optional)')
+    # A FieldList of challenge conditions; adjust min_entries as needed.
+    conditions = FieldList(FormField(ChallengeConditionForm), min_entries=1, max_entries=5)
     submit = SubmitField('Challenge erstellen')
         
 class GenerateInviteForm(FlaskForm):

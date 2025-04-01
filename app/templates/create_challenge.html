@@ -1,28 +1,12 @@
 <!-- app/templates/create_challenge.html -->
-
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
   <h1 class="text-center">Herausforderung erstellen</h1>
   <form method="POST">
     {{ form.hidden_tag() }}
-    
-    <div class="form-group mb-3">
-      {{ form.fish.label(class="form-label") }}
-      {{ form.fish(class="form-control") }}
-      {% for error in form.fish.errors %}
-        <span class="text-danger">{{ error }}</span>
-      {% endfor %}
-    </div>
-    
-    <div class="form-group mb-3">
-      {{ form.goal.label(class="form-label") }}
-      {{ form.goal(class="form-control", placeholder="Zielanzahl Fische") }}
-      {% for error in form.goal.errors %}
-        <span class="text-danger">{{ error }}</span>
-      {% endfor %}
-    </div>
-    
+
+    <!-- Basic Challenge Fields -->
     <div class="form-group mb-3">
       {{ form.time_limit.label(class="form-label") }}
       {{ form.time_limit(class="form-control") }}
@@ -38,10 +22,162 @@
         <span class="text-danger">{{ error }}</span>
       {% endfor %}
     </div>
-    
+
+    <!-- Dynamic Challenge Conditions -->
+    <h3>Bedingungen</h3>
+    <div id="conditions">
+      {% for condition in form.conditions %}
+        <div class="condition-entry border p-3 mb-3 position-relative">
+          <!-- Remove condition button (X) -->
+          <span class="remove-condition position-absolute top-0 end-0 p-2" style="cursor:pointer;">&times;</span>
+          <div class="form-group mb-2">
+            {{ condition.condition_type.label(class="form-label") }}
+            {{ condition.condition_type(class="form-control condition-type") }}
+            {% for error in condition.condition_type.errors %}
+              <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <div class="form-group mb-2 common-fields">
+            {{ condition.goal.label(class="form-label") }}
+            {{ condition.goal(class="form-control", placeholder="Zielanzahl Fische") }}
+            {% for error in condition.goal.errors %}
+              <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <div class="form-group mb-2 common-fields">
+            {{ condition.amount.label(class="form-label") }}
+            {{ condition.amount(class="form-control", placeholder="Punkte Wert") }}
+            {% for error in condition.amount.errors %}
+              <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <!-- Specific condition: show fish selection -->
+          <div class="form-group mb-2 specific-fields">
+            {{ condition.fish.label(class="form-label") }}
+            {{ condition.fish(class="form-control") }}
+            {% for error in condition.fish.errors %}
+              <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <!-- Category condition: show fish type selection -->
+          <div class="form-group mb-2 category-fields">
+            {{ condition.fish_type.label(class="form-label") }}
+            {{ condition.fish_type(class="form-control") }}
+            {% for error in condition.fish_type.errors %}
+              <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Button to add a new condition dynamically -->
+    <div class="mb-3">
+      <button type="button" id="add-condition" class="btn btn-secondary">Weitere Kondition hinzufügen</button>
+    </div>
+
     <div class="text-center">
       {{ form.submit(class="btn btn-primary") }}
     </div>
   </form>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  // Function to update which extra fields are visible in a condition entry
+  function updateConditionFields(conditionEntry) {
+    var conditionTypeSelect = conditionEntry.querySelector(".condition-type");
+    var selectedType = conditionTypeSelect.value;
+    var specificFields = conditionEntry.querySelector(".specific-fields");
+    var categoryFields = conditionEntry.querySelector(".category-fields");
+
+    // Hide both extra fields by default
+    if (specificFields) specificFields.style.display = "none";
+    if (categoryFields) categoryFields.style.display = "none";
+
+    if (selectedType === "specific") {
+      if (specificFields) specificFields.style.display = "block";
+    } else if (selectedType === "category") {
+      if (categoryFields) categoryFields.style.display = "block";
+    }
+    // For "any" (Beliebig), no additional fields are shown.
+  }
+
+  // Attach event listeners for each existing condition entry
+  document.querySelectorAll(".condition-entry").forEach(function(entry) {
+    var selectElem = entry.querySelector(".condition-type");
+    updateConditionFields(entry);
+    selectElem.addEventListener("change", function() {
+      updateConditionFields(entry);
+    });
+
+    // Attach event listener for remove button
+    var removeBtn = entry.querySelector(".remove-condition");
+    removeBtn.addEventListener("click", function() {
+      var conditionEntries = document.querySelectorAll(".condition-entry");
+      // Ensure at least one condition remains
+      if (conditionEntries.length > 1) {
+        entry.remove();
+        updateIndices();
+      } else {
+        alert("Es muss mindestens eine Bedingung vorhanden sein.");
+      }
+    });
+  });
+
+  // Handler for adding a new condition entry
+  var addConditionBtn = document.getElementById("add-condition");
+  var conditionsDiv = document.getElementById("conditions");
+
+  addConditionBtn.addEventListener("click", function(e) {
+    e.preventDefault();
+    var conditionEntries = conditionsDiv.getElementsByClassName("condition-entry");
+    var newIndex = conditionEntries.length;
+    var lastEntry = conditionEntries[conditionEntries.length - 1];
+    var newEntry = lastEntry.cloneNode(true);
+
+    // Update field names and IDs in the new entry by replacing the index
+    newEntry.innerHTML = newEntry.innerHTML.replace(/conditions-\d+/g, "conditions-" + newIndex);
+
+    // Clear input values in the new entry
+    var inputs = newEntry.querySelectorAll("input, select, textarea");
+    inputs.forEach(function(input) {
+      if (input.tagName.toLowerCase() === "select") {
+        input.selectedIndex = 0;
+      } else {
+        input.value = "";
+      }
+    });
+
+    conditionsDiv.appendChild(newEntry);
+
+    // Attach change event to new condition_type select
+    var selectElem = newEntry.querySelector(".condition-type");
+    updateConditionFields(newEntry);
+    selectElem.addEventListener("change", function() {
+      updateConditionFields(newEntry);
+    });
+
+    // Attach event listener for remove button on new entry
+    var removeBtn = newEntry.querySelector(".remove-condition");
+    removeBtn.addEventListener("click", function() {
+      var conditionEntries = document.querySelectorAll(".condition-entry");
+      if (conditionEntries.length > 1) {
+        newEntry.remove();
+        updateIndices();
+      } else {
+        alert("Es muss mindestens eine Bedingung vorhanden sein.");
+      }
+    });
+    updateIndices();
+  });
+
+  // Optional: updateIndices() function to adjust indices if needed.
+  function updateIndices() {
+    // For simplicity, we're assuming the regex replacement already updates indices.
+    // You can iterate over each .condition-entry and reset the 'name' attributes if desired.
+  }
+});
+</script>
 {% endblock %}
