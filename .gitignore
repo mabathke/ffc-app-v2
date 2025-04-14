@@ -1,5 +1,5 @@
 /instance/
 #python ignores
-__pycache__/
+app/__pycache__/
 *.py[cod]
 *$py.class

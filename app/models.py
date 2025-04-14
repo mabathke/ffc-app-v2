@@ -78,8 +78,9 @@ class Challenge(db.Model):
     __tablename__ = 'challenge'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    expiration_time = db.Column(db.DateTime, nullable=False)
+    # Instead of start_time/expiration_time, we now have a time_period column.
+    # Accepted values: 'M' for monthly, 'W' for weekly, 'D' for daily, 'T' for two minutes (testing)
+    time_period = db.Column(db.String(1), nullable=False)
     description = db.Column(db.String(255))
 
     # Relationships
@@ -88,7 +89,7 @@ class Challenge(db.Model):
     participations = db.relationship('ChallengeParticipation', backref='challenge', lazy=True)
 
     def __repr__(self):
-        return f"<Challenge id:{self.id} User:{self.user_id} Exp:{self.expiration_time}>"
+        return f"<Challenge id:{self.id} User:{self.user_id} Period:{self.time_period}>"
 
 
     

@@ -53,54 +53,65 @@
       </table>
 
       <!-- Finished Challenges Section -->
-      <h3 class="text-center mt-4">Abgelaufene Challenges</h3>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Herausforderung</th>
-            <th>Teilnehmer</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for challenge in finished_challenges %}
-          <tr>
-            <td>
-              {% for cond in challenge.conditions %}
-                {% if cond.condition_type == 'specific' and cond.fish %}
-                  {{ cond.goal }} {{ cond.fish.name }} fangen
-                {% elif cond.condition_type == 'category' and cond.fish_type %}
-                  {{ cond.goal }} {{ cond.fish_type }} fangen
-                {% else %}
-                  {{ cond.goal }} Fische fangen
-                {% endif %}
-                {% if not loop.last %}<br>{% endif %}
-              {% endfor %}
-              <br>
-              <small>
-                Start: {{ challenge.start_time.strftime('%d.%m.%Y') }},
-                Ende: {{ challenge.expiration_time.strftime('%d.%m.%Y') }}
-              </small>
-            </td>
-            <td>
-              {% if challenge.participations %}
-                {% for part in challenge.participations %}
-                <div>
-                  <strong>{{ part.user.username }}</strong>:
-                  {% if part.success %}
-                    Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                  {% else %}
-                    Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                  {% endif %}
-                </div>
-                {% endfor %}
+    <h3 class="text-center mt-4">Abgelaufene Challenges</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Herausforderung</th>
+          <th>Teilnehmer</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for challenge in finished_challenges %}
+        <tr>
+          <td>
+            {% for cond in challenge.conditions %}
+              {% if cond.condition_type == 'specific' and cond.fish %}
+                {{ cond.goal }} {{ cond.fish.name }} fangen
+              {% elif cond.condition_type == 'category' and cond.fish_type %}
+                {{ cond.goal }} {{ cond.fish_type }} fangen
               {% else %}
-                <span>Keine Teilnahmen</span>
+                {{ cond.goal }} Fische fangen
               {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+              {% if not loop.last %}<br>{% endif %}
+            {% endfor %}
+            <br>
+            <small>
+              Dauer: 
+              {% if challenge.time_period == 'M' %}
+                Monat
+              {% elif challenge.time_period == 'W' %}
+                Woche
+              {% elif challenge.time_period == 'D' %}
+                Tag
+              {% elif challenge.time_period == 'T' %}
+                Test
+              {% else %}
+                Unbekannt
+              {% endif %}
+            </small>
+          </td>
+          <td>
+            {% if challenge.participations %}
+              {% for part in challenge.participations %}
+              <div>
+                <strong>{{ part.user.username }}</strong>:
+                {% if part.success %}
+                  Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                {% else %}
+                  Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+              <span>Keine Teilnahmen</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
     </div>
   {% else %}
     <p class="text-center">
