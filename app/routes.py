@@ -46,8 +46,20 @@ def home():
      .order_by((func.coalesce(catch_subq.c.catch_points, 0) + func.coalesce(challenge_subq.c.challenge_points, 0)).desc())\
      .all()
 
-    # Since we no longer have a start or expiration time, simply query challenges and order by id (or any other available field)
-    finished_challenges = Challenge.query.order_by(Challenge.id.desc()).all()
+    # Process expired participations (ensures that the processed flag is up-to-date)
+    process_expired_participations()
+
+    # Query all processed participations and group them by challenge id
+    expired_parts = ChallengeParticipation.query.filter_by(processed=True).all()
+    expired_challenges_dict = {}
+    for part in expired_parts:
+        if part.challenge_id not in expired_challenges_dict:
+            expired_challenges_dict[part.challenge_id] = {
+                "challenge": part.challenge,
+                "participations": []
+            }
+        expired_challenges_dict[part.challenge_id]["participations"].append(part)
+    expired_challenges_grouped = list(expired_challenges_dict.values())
 
     return render_template(
         'dashboard.html',
@@ -55,8 +67,10 @@ def home():
         catches=catches,
         catches_per_user=catches_per_user,
         rankings=rankings,
-        finished_challenges=finished_challenges
+        expired_challenges=expired_challenges_grouped,
+        now=now
     )
+
 
 
 @main.route("/register", methods=['GET', 'POST'])
@@ -145,7 +159,7 @@ def add_fish():
         db.session.add(fish)
         db.session.commit()
         flash(f'Fisch "{form.name.data}" wurde hinzugefügt.', 'success')
-        return redirect(url_for('main.manage_fish'))
+        return redirect(url_for('main.admin_panel'))
     return render_template('add_fish.html', title='Fisch hinzufügen', form=form)
 
 @main.route("/admin/delete_fish", methods=['GET', 'POST'])
@@ -157,25 +171,27 @@ def delete_fish():
         fish = Fish.query.filter_by(name=form.name.data).first()
         if not fish:
             flash('Der angegebene Fisch existiert nicht.', 'danger')
-            return redirect(url_for('main.manage_fish'))
+            return redirect(url_for('main.admin_panel'))
         
         # Überprüfen, ob der Fisch zugehörige Fänge hat
         if fish.catches:
             flash('Dieser Fisch kann nicht gelöscht werden, da er zugehörige Fänge hat.', 'danger')
-            return redirect(url_for('main.manage_fish'))
+            return redirect(url_for('main.admin_panel'))
         
         db.session.delete(fish)
         db.session.commit()
         flash(f'Fisch "{form.name.data}" wurde gelöscht.', 'success')
-        return redirect(url_for('main.manage_fish'))
+        return redirect(url_for('main.admin_panel'))
     return render_template('delete_fish.html', title='Fisch löschen', form=form)
 
-@main.route("/admin/manage_fish")
+@main.route("/admin/admin_panel")
 @login_required
 @admin_required
-def manage_fish():
+def admin_panel():
     fishes = Fish.query.all()
-    return render_template('manage_fish.html', title='Fische verwalten', fishes=fishes)
+    challenges = Challenge.query.all()
+    return render_template('admin_panel.html', title='Admin Panel', fishes=fishes, challenges=challenges)
+
 
 @main.route("/rules")
 @login_required
@@ -257,7 +273,7 @@ def edit_fish(fish_id):
         fish.type = form.type.data  # Update the fish type
         db.session.commit()
         flash(f'Die Werte von "{fish.name}" wurden erfolgreich aktualisiert.', 'success')
-        return redirect(url_for('main.manage_fish'))
+        return redirect(url_for('main.admin_panel'))
     
     elif request.method == 'GET':
         form.multiplicator.data = fish.multiplicator
@@ -304,6 +320,7 @@ def delete_catch(catch_id):
     flash('Dein Fang wurde erfolgreich gelöscht.', 'success')
     return redirect(url_for('main.fangmeldung'))
 
+
 @main.route("/challenges")
 @login_required
 def challenges():
@@ -338,7 +355,6 @@ def challenges():
         my_participations=my_participations,
         now=now
     )
-
 
 
 @main.route("/create_challenge", methods=['GET', 'POST'])
@@ -404,11 +420,6 @@ def create_challenge():
             print("Form errors:", form.errors)
 
     return render_template("create_challenge.html", title="Challenge erstellen", form=form)
-
-
-from datetime import timedelta, datetime
-from flask import flash, redirect, url_for
-from flask_login import login_required, current_user
 
 @main.route("/join_challenge/<int:challenge_id>")
 @login_required
@@ -501,7 +512,29 @@ def process_expired_participations():
         # Otherwise, the participation remains active (unprocessed).
     db.session.commit()
 
+@main.route("/admin/challenge/<int:challenge_id>/deactivate", methods=['POST'])
+@login_required
+@admin_required
+def deactivate_challenge(challenge_id):
+    challenge = Challenge.query.get_or_404(challenge_id)
+    if challenge.active:
+        challenge.active = False
+        db.session.commit()
+        flash("Challenge deactivated successfully.", "success")
+    else:
+        flash("Challenge is already inactive.", "info")
+    return redirect(url_for('main.admin_panel'))
 
 
-
-
+@main.route("/admin/challenge/<int:challenge_id>/activate", methods=['POST'])
+@login_required
+@admin_required
+def activate_challenge(challenge_id):
+    challenge = Challenge.query.get_or_404(challenge_id)
+    if not challenge.active:
+        challenge.active = True
+        db.session.commit()
+        flash("Challenge activated successfully.", "success")
+    else:
+        flash("Challenge is already active.", "info")
+    return redirect(url_for('main.admin_panel'))

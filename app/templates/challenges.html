@@ -71,7 +71,7 @@
         </table>
       </div>
     {% else %}
-      <p class="text-center">Du hast noch keine Challenges beigetreten.</p>
+      <p class="text-center">Du hast noch keiner Challenge beigetreten.</p>
     {% endif %}
 
     <!-- Aktuelle Herausforderungen Section -->
@@ -203,11 +203,6 @@
       <p class="text-center">Es gibt keine abgeschlossenen Herausforderungen.</p>
     {% endif %}
 
-    <div class="text-center mb-4">
-      <a href="{{ url_for('main.create_challenge') }}" class="btn btn-success">
-        Herausforderung erstellen
-      </a>
-    </div>
   </div>
 </div>
 {% endblock %}

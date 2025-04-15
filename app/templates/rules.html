@@ -11,35 +11,37 @@
         
         <div class="rules-box">
             <ul class="rules-list">
-                <li>Es gelten nur die Fische, die in der Übersicht auf dieser Seite abgebildet sind.</li>
-                <li>Wird ein Fisch unterhalb der „Above Average“-Länge gefangen, berechnen sich die Punkte als Fanglänge multipliziert mit dem Multiplikator.</li>
-                <li>Wird ein Fisch zwischen der „Above Average“-Länge und der „Monster“-Länge gefangen, berechnen sich die Punkte als Fanglänge multipliziert mit (Multiplikator + 0,2).</li>
-                <li>Wird ein Fisch länger als die „Monster“-Länge gefangen, berechnen sich die Punkte als Fanglänge multipliziert mit (Multiplikator + 0,5).</li>
-                <li>Bei Fängen, bei denen ein Bonus-Multiplikator (0,2 oder 0,5) zur Anwendung kommt, muss ein Foto des Fangs zur Verifizierung hochgeladen werden.</li>
+                <li>Es gelten die Fische, die in der Übersicht auf dieser Seite abgebildet sind. Diese können beliebig ergänzt werden, falls notwendig</li>
+                <li>Wird ein Fisch unterhalb der Kapital-Länge gefangen, berechnen sich die Punkte als Fanglänge multipliziert mit dem Multiplikator.</li>
+                <li>Wird ein Fisch zwischen der „Kapital“-Länge und der „Monster“-Länge gefangen, berechnen sich die Punkte als Fanglänge multipliziert mit Multiplikator + 150 Zusatzpunkte.</li>
+                <li>Wird ein Fisch länger als die „Monster“-Länge gefangen, berechnen sich die Punkte als Fanglänge multipliziert mit Multiplikator + 300 Zusatzpunkte.</li>
+                <li>Bei Fängen größer als „Kapital“-Länge, sollte ein Foto in die Whatsapp Gruppe zur Validierung geschickt werden.</li>
+                <li>Ein Teilnehmer kann beliebig viele Herausforderungen beitreten. Eine Herausforderung kann mehrere Konditionen haben und müssen immer in Gänze erfüllt werden.</li>
+                <li>Schafft ein Teilnehmer eine Herausforderung so werden ihm die ausgeführten Punkte zu seinen Punkten addiert. </li>
+                <li><b>ACHTUNG</b>: Wird die Herausforderung nicht im Zeitrahmen erfüllt, so bekommt der Teilnehmer die Punkte der Herausforderung als Minuspunkte!</li>  
             </ul>
         </div>
 
         <div class="container mt-4">
-            <h2 class="text-center">Zugelassene Fische</h2>
-            <div class="row justify-content-center">
-                {% for fish in fishes %}
-                    <div class="col-md-4 col-sm-6 mb-4 d-flex align-items-stretch">
-                        <div class="card text-center w-100">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title">{{ fish.name }}</h5>
-                                <p class="card-text">
-                                    <strong>Multiplikator:</strong> {{ fish.multiplicator }}<br>
-                                    <strong>Above Average Länge:</strong> {{ fish.above_average }} cm<br>
-                                    <strong>Monster Länge:</strong> {{ fish.monster }} cm<br>
-                                    <strong>Worth:</strong> {{ fish.worth }}
-                                </p>
-                                <!-- Optionally display additional info if needed -->
-                            </div>
-                        </div>
+            <h2 class="text-center mb-4">Zugelassene Fische</h2>
+            <div class="row">
+              {% for fish in fishes %}
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                  <div class="card h-100 shadow-sm border-0 rounded fancy-card">  
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-center" style="color: #218838;">{{ fish.name }}</h5>
+                      <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item text-center"><strong>Multiplikator:</strong> {{ fish.multiplicator }}</li>
+                        <li class="list-group-item text-center"><strong>Kapital Länge:</strong> {{ fish.above_average }} cm</li>
+                        <li class="list-group-item text-center"><strong>Monster Länge:</strong> {{ fish.monster }} cm</li>
+                      </ul>
                     </div>
-                {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
             </div>
         </div>
+          
     </div>
 </div>
 {% endblock %}

@@ -54,8 +54,8 @@
   {% endif %}
 
   <!-- Meine Herausforderungen Section -->
-  <h3 class="text-center">Meine Herausforderungen</h3>
-  {% if my_challenges %}
+  <h3 class="text-center mt-4">Meine Herausforderungen</h3>
+  {% if my_participations %}
     <div class="table-responsive">
       <table class="table table-striped">
         <thead>
@@ -66,36 +66,51 @@
           </tr>
         </thead>
         <tbody>
-          {% for part in my_challenges %}
+          {% for part in my_participations %}
           <tr>
             <td>
-              {% if part.challenge.fish %}
-                {{ part.challenge.goal }} {{ part.challenge.fish.name }} fangen
-              {% else %}
-                {{ part.challenge.goal }} Fische fangen (alle Arten)
-              {% endif %}
-              <br>
+              {% for cond in part.challenge.conditions %}
+                {% if cond.condition_type == 'specific' and cond.fish %}
+                  {{ cond.goal }} {{ cond.fish.name }} fangen
+                {% elif cond.condition_type == 'category' and cond.fish_type %}
+                  {{ cond.goal }} {{ cond.fish_type }} fangen
+                {% else %}
+                  {{ cond.goal }} Fische fangen
+                {% endif %}
+                {% if not loop.last %}<br>{% endif %}
+              {% endfor %}
+              <br />
               <small>
-                Start: {{ part.challenge.start_time.strftime('%d.%m.%Y') }},
-                Ende: {{ part.challenge.expiration_time.strftime('%d.%m.%Y') }}
+                Dauer: 
+                {% if part.challenge.time_period == 'M' %}
+                  Monat
+                {% elif part.challenge.time_period == 'W' %}
+                  Woche
+                {% elif part.challenge.time_period == 'D' %}
+                  Tag
+                {% elif part.challenge.time_period == 'T' %}
+                  Test
+                {% else %}
+                  Unbekannt
+                {% endif %}
               </small>
             </td>
             <td>
-              {% if part.challenge.expiration_time > now %}
-                Aktiv
+              {% if part.processed %}
+                {% if part.success %}
+                  Gewonnen
+                {% else %}
+                  Verloren
+                {% endif %}
               {% else %}
-                Abgelaufen
+                Noch nicht ausgewertet
               {% endif %}
             </td>
             <td>
-              {% if part.challenge.expiration_time > now %}
-                -
+              {% if part.processed %}
+                {{ "%.0f"|format(part.awarded_points) }} Punkte
               {% else %}
-                {% if part.success %}
-                  Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                {% else %}
-                  Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                {% endif %}
+                -
               {% endif %}
             </td>
           </tr>
@@ -104,7 +119,7 @@
       </table>
     </div>
   {% else %}
-    <p class="text-center">Du hast noch an keiner Herausforderung teilgenommen.</p>
+    <p class="text-center">Du hast noch keine Challenges beigetreten.</p>
   {% endif %}
 </div>
 {% endblock %}

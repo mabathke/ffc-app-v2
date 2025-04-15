@@ -52,66 +52,70 @@
         </tbody>
       </table>
 
-      <!-- Finished Challenges Section -->
-    <h3 class="text-center mt-4">Abgelaufene Challenges</h3>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Herausforderung</th>
-          <th>Teilnehmer</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for challenge in finished_challenges %}
-        <tr>
-          <td>
-            {% for cond in challenge.conditions %}
-              {% if cond.condition_type == 'specific' and cond.fish %}
-                {{ cond.goal }} {{ cond.fish.name }} fangen
-              {% elif cond.condition_type == 'category' and cond.fish_type %}
-                {{ cond.goal }} {{ cond.fish_type }} fangen
-              {% else %}
-                {{ cond.goal }} Fische fangen
-              {% endif %}
-              {% if not loop.last %}<br>{% endif %}
-            {% endfor %}
-            <br>
-            <small>
-              Dauer: 
-              {% if challenge.time_period == 'M' %}
-                Monat
-              {% elif challenge.time_period == 'W' %}
-                Woche
-              {% elif challenge.time_period == 'D' %}
-                Tag
-              {% elif challenge.time_period == 'T' %}
-                Test
-              {% else %}
-                Unbekannt
-              {% endif %}
-            </small>
-          </td>
-          <td>
-            {% if challenge.participations %}
-              {% for part in challenge.participations %}
-              <div>
-                <strong>{{ part.user.username }}</strong>:
-                {% if part.success %}
-                  Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                {% else %}
-                  Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                {% endif %}
-              </div>
+      <!-- Abgeschlossene Herausforderungen Section -->
+      <h3 class="text-center mt-4">Abgeschlossene Herausforderungen</h3>
+      {% if expired_challenges %}
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead class="table-success">
+              <tr>
+                <th>Herausforderer</th>
+                <th>Herausforderung</th>
+                <th>Ergebnisse</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for group in expired_challenges %}
+              {% set challenge = group.challenge %}
+              <tr>
+                <td>{{ challenge.user.username }}</td>
+                <td>
+                  {% for cond in challenge.conditions %}
+                    {% if cond.condition_type == 'specific' and cond.fish %}
+                      {{ cond.goal }} {{ cond.fish.name }} fangen
+                    {% elif cond.condition_type == 'category' and cond.fish_type %}
+                      {{ cond.goal }} {{ cond.fish_type }} fangen
+                    {% else %}
+                      {{ cond.goal }} Fische fangen
+                    {% endif %}
+                    {% if not loop.last %}<br>{% endif %}
+                  {% endfor %}
+                  <br>
+                  <small>
+                    Dauer: 
+                    {% if challenge.time_period == 'M' %}
+                      Monat
+                    {% elif challenge.time_period == 'W' %}
+                      Woche
+                    {% elif challenge.time_period == 'D' %}
+                      Tag
+                    {% elif challenge.time_period == 'T' %}
+                      Test
+                    {% else %}
+                      Unbekannt
+                    {% endif %}
+                  </small>
+                </td>
+                <td>
+                  {% for part in group.participations %}
+                  <div>
+                    <strong>{{ part.user.username }}</strong>:
+                    {% if part.success %}
+                      Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                    {% else %}
+                      Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </td>
+              </tr>
               {% endfor %}
-            {% else %}
-              <span>Keine Teilnahmen</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-center">Es gibt keine abgeschlossenen Herausforderungen.</p>
+      {% endif %}
     </div>
   {% else %}
     <p class="text-center">

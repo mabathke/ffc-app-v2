@@ -78,18 +78,22 @@ class Challenge(db.Model):
     __tablename__ = 'challenge'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # Instead of start_time/expiration_time, we now have a time_period column.
-    # Accepted values: 'M' for monthly, 'W' for weekly, 'D' for daily, 'T' for two minutes (testing)
+    # Values: 'M' (monthly), 'W' (weekly), 'D' (daily), 'T' (two minutes for testing)
     time_period = db.Column(db.String(1), nullable=False)
     description = db.Column(db.String(255))
+    
+    # New flag to indicate if the challenge is active
+    active = db.Column(db.Boolean, nullable=False, default=True)
 
     # Relationships
     user = db.relationship('User', backref='created_challenges')
     conditions = db.relationship('ChallengeCondition', backref='challenge', lazy=True)
     participations = db.relationship('ChallengeParticipation', backref='challenge', lazy=True)
-
+    
     def __repr__(self):
-        return f"<Challenge id:{self.id} User:{self.user_id} Period:{self.time_period}>"
+        return (f"<Challenge id:{self.id} User:{self.user_id} Period:{self.time_period} "
+                f"Active:{self.active}>")
+
 
 
     
