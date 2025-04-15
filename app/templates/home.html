@@ -1,4 +1,3 @@
-<!-- app/templates/dashboard.html -->
 {% extends "base.html" %}
 {% block content %}
 <div class="mt-4">
@@ -33,7 +32,7 @@
         <thead>
           <tr>
             <th>Fisch</th>
-            <th>Gefangen von</th>
+            <th>Angler</th>
             <th>Größe</th>
             <th class="d-none d-md-table-cell">Gefangen am</th>
             <th class="d-none d-md-table-cell">Punkte</th>
@@ -42,7 +41,9 @@
         <tbody>
           {% for catch in catches %}
           <tr>
-            <td>{{ catch.fish.name }}</td>
+            <td style="max-width: 15ch; white-space: normal; overflow-wrap: break-word;">
+              {{ catch.fish.name }}
+            </td>
             <td>{{ catch.user.username }}</td>
             <td>{{ catch.length }}</td>
             <td class="d-none d-md-table-cell">{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
@@ -59,7 +60,6 @@
           <table class="table table-striped">
             <thead class="table-success">
               <tr>
-                <th>Herausforderer</th>
                 <th>Herausforderung</th>
                 <th>Ergebnisse</th>
               </tr>
@@ -68,7 +68,6 @@
               {% for group in expired_challenges %}
               {% set challenge = group.challenge %}
               <tr>
-                <td>{{ challenge.user.username }}</td>
                 <td>
                   {% for cond in challenge.conditions %}
                     {% if cond.condition_type == 'specific' and cond.fish %}

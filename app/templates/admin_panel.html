@@ -11,7 +11,7 @@
 
     <!-- Fish Management Section -->
     <h2 class="text-center">Fisch Verwaltung</h2>
-    <div class="table-responsive">
+    <div class="table-responsive mb-4">
       <table class="table table-striped">
         <thead>
           <tr>
@@ -45,71 +45,70 @@
     </div>
 
     <!-- Aktuelle Herausforderungen Section -->
-<h3 class="text-center mt-4">Aktuelle Herausforderungen</h3>
-{% if challenges %}
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Herausforderung</th>
-          <th>Dauer</th>
-          <th>Aktion</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for challenge in challenges %}
-        <tr>
-          <td>
-            {% for cond in challenge.conditions %}
-              {% if cond.condition_type == 'specific' and cond.fish %}
-                {{ cond.goal }} {{ cond.fish.name }} fangen
-              {% elif cond.condition_type == 'category' and cond.fish_type %}
-                {{ cond.goal }} {{ cond.fish_type }} fangen
-              {% else %}
-                {{ cond.goal }} Fische fangen
-              {% endif %}
-              {% if not loop.last %}<br>{% endif %}
+    <h3 class="text-center mt-4">Aktuelle Herausforderungen</h3>
+    {% if challenges %}
+      <div class="table-responsive mb-4">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Herausforderung</th>
+              <th>Dauer</th>
+              <th>Aktion</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for challenge in challenges %}
+            <tr>
+              <td>
+                {% for cond in challenge.conditions %}
+                  {% if cond.condition_type == 'specific' and cond.fish %}
+                    {{ cond.goal }} {{ cond.fish.name }} fangen
+                  {% elif cond.condition_type == 'category' and cond.fish_type %}
+                    {{ cond.goal }} {{ cond.fish_type }} fangen
+                  {% else %}
+                    {{ cond.goal }} Fische fangen
+                  {% endif %}
+                  {% if not loop.last %}<br>{% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                {% if challenge.time_period == 'M' %}
+                  Monat
+                {% elif challenge.time_period == 'W' %}
+                  Woche
+                {% elif challenge.time_period == 'D' %}
+                  Tag
+                {% elif challenge.time_period == 'T' %}
+                  Test
+                {% else %}
+                  Unbekannt
+                {% endif %}
+              </td>
+              <td>
+                {% if challenge.active %}
+                  <form action="{{ url_for('main.deactivate_challenge', challenge_id=challenge.id) }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Deaktivieren</button>
+                  </form>
+                {% else %}
+                  <form action="{{ url_for('main.activate_challenge', challenge_id=challenge.id) }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-success btn-sm">Aktivieren</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
             {% endfor %}
-          </td>
-          <td>
-            {% if challenge.time_period == 'M' %}
-              Monat
-            {% elif challenge.time_period == 'W' %}
-              Woche
-            {% elif challenge.time_period == 'D' %}
-              Tag
-            {% elif challenge.time_period == 'T' %}
-              Test
-            {% else %}
-              Unbekannt
-            {% endif %}
-          </td>
-          <td>
-            {% if challenge.active %}
-              <form action="{{ url_for('main.deactivate_challenge', challenge_id=challenge.id) }}" method="post" class="d-inline">
-                <button type="submit" class="btn btn-danger btn-sm">Deaktivieren</button>
-              </form>
-            {% else %}
-              <form action="{{ url_for('main.activate_challenge', challenge_id=challenge.id) }}" method="post" class="d-inline">
-                <button type="submit" class="btn btn-success btn-sm">Aktivieren</button>
-              </form>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-{% else %}
-  <p class="text-center">Zurzeit gibt es keine aktiven Herausforderungen.</p>
-{% endif %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-center">Zurzeit gibt es keine aktiven Herausforderungen.</p>
+    {% endif %}
 
-
-<div class="text-center mb-4">
-  <a href="{{ url_for('main.create_challenge') }}" class="btn btn-success">
-    Herausforderung erstellen
-  </a>
-</div>
-
+    <div class="text-center mb-4">
+      <a href="{{ url_for('main.create_challenge') }}" class="btn btn-success">
+        Herausforderung erstellen
+      </a>
+    </div>
+    
   </div>
 {% endblock %}

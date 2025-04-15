@@ -62,7 +62,7 @@ def home():
     expired_challenges_grouped = list(expired_challenges_dict.values())
 
     return render_template(
-        'dashboard.html',
+        'home.html',
         title='Home',
         catches=catches,
         catches_per_user=catches_per_user,
@@ -196,7 +196,7 @@ def admin_panel():
 @main.route("/rules")
 @login_required
 def rules():
-    fishes = Fish.query.all()
+    fishes = Fish.query.order_by(Fish.name.asc()).all()
     return render_template('rules.html', title='Regeln', fishes=fishes)
 
 
@@ -343,7 +343,9 @@ def challenges():
     
     # For current challenges, exclude those which are finished (i.e. appear in the expired grouping).
     expired_ids = [group["challenge"].id for group in expired_challenges_grouped]
-    current_challenges = Challenge.query.filter(~Challenge.id.in_(expired_ids)).all()
+    current_challenges = Challenge.query.filter(
+        Challenge.active == True
+    ).all()
     
     my_participations = ChallengeParticipation.query.filter_by(user_id=current_user.id).all()
     
@@ -414,7 +416,7 @@ def create_challenge():
         db.session.commit()
 
         flash("Herausforderung wurde erfolgreich erstellt.", "success")
-        return redirect(url_for("main.challenges"))
+        return redirect(url_for("main.admin_panel"))
     else:
         if request.method == "POST":
             print("Form errors:", form.errors)

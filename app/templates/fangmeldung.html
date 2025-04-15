@@ -53,19 +53,21 @@
       <thead>
         <tr>
           <th>Fisch</th>
-          <th class="d-none d-md-table-cell">Größe</th>
-          <th>Gefangen am</th>
-          <th class="d-none d-md-table-cell">Punkte</th>
-          <th>Aktionen</th>
+          <th>Größe</th>
+          <th>Tag</th>
+          <th>Punkte</th>
+          <th>Aktionen</th> 
         </tr>
       </thead>
       <tbody>
         {% for catch in catches_per_user %}
         <tr>
-          <td>{{ catch.fish.name }}</td>
-          <td class="d-none d-md-table-cell">{{ catch.length }}</td>
+          <td style="max-width: 15ch; white-space: normal; overflow-wrap: break-word;"> 
+            {{ catch.fish.name }}
+          </td>
+          <td >{{ catch.length }}</td>
           <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
-          <td class="d-none d-md-table-cell">
+          <td >
             {{ "%.0f"|format(catch.points) }}
           </td>
           <td>
