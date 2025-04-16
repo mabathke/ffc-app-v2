@@ -1,125 +1,29 @@
-<!-- app/templates/account.html -->
-
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-  <h1 class="text-center mb-4">Mein Account</h1>
-  <!-- Logo and Main Header -->
-  <img
-    id="logo"
-    src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}"
-    alt="FFC Logo"
-    class="logo mx-auto d-block mb-4"
-  >
-  
-  
-  <!-- User Info -->
-  <h3 class="text-center">Meine Infos</h3> 
-  <ul class="list-group mb-4">
-    <li class="list-group-item">
-      <strong>Username:</strong> {{ current_user.username }}
-    </li>
-    <li class="list-group-item">
-      <strong>Email:</strong> {{ current_user.email }}
-    </li>
-  </ul>
-
-  <!-- Meine Fänge Section -->
-  <h3 class="text-center">Meine Fänge</h3>
-  {% if my_catches %}
-    <div class="table-responsive mb-4">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Fisch</th>
-            <th>Größe (cm)</th>
-            <th>Punkte</th>
-            <th>Zeitstempel</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for catch in my_catches %}
-          <tr>
-            <td>{{ catch.fish.name }}</td>
-            <td>{{ catch.length }}</td>
-            <td>{{ "%.0f"|format(catch.points) }}</td>
-            <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M') }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="card mx-auto" style="max-width: 500px;">
+    <div class="card-body">
+      <h1 class="card-title text-center mb-4">Mein Account</h1>
+      <div class="text-center mb-4">
+        <img 
+          id="logo" 
+          src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" 
+          alt="FFC Logo" 
+          class="img-fluid" 
+          style="max-width: 150px;"
+        >
+      </div>
+      
+      <h3 class="text-center mb-3">Meine Infos</h3>
+      <ul class="list-group mb-4">
+        <li class="list-group-item"><strong>Username:</strong> {{ current_user.username }}</li>
+        <li class="list-group-item"><strong>Email:</strong> {{ current_user.email }}</li>
+      </ul>
+      
+      <div class="text-center">
+        <a href="{{ url_for('main.change_username') }}" class="btn btn-primary">Benutzernamen ändern</a>
+      </div>
     </div>
-  {% else %}
-    <p class="text-center">Du hast noch keine Fänge registriert.</p>
-  {% endif %}
-
-  <!-- Meine Herausforderungen Section -->
-  <h3 class="text-center mt-4">Meine Herausforderungen</h3>
-  {% if my_participations %}
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Herausforderung</th>
-            <th>Status</th>
-            <th>Ergebnis</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for part in my_participations %}
-          <tr>
-            <td>
-              {% for cond in part.challenge.conditions %}
-                {% if cond.condition_type == 'specific' and cond.fish %}
-                  {{ cond.goal }} {{ cond.fish.name }} fangen
-                {% elif cond.condition_type == 'category' and cond.fish_type %}
-                  {{ cond.goal }} {{ cond.fish_type }} fangen
-                {% else %}
-                  {{ cond.goal }} Fische fangen
-                {% endif %}
-                {% if not loop.last %}<br>{% endif %}
-              {% endfor %}
-              <br />
-              <small>
-                Dauer: 
-                {% if part.challenge.time_period == 'M' %}
-                  Monat
-                {% elif part.challenge.time_period == 'W' %}
-                  Woche
-                {% elif part.challenge.time_period == 'D' %}
-                  Tag
-                {% elif part.challenge.time_period == 'T' %}
-                  Test
-                {% else %}
-                  Unbekannt
-                {% endif %}
-              </small>
-            </td>
-            <td>
-              {% if part.processed %}
-                {% if part.success %}
-                  Gewonnen
-                {% else %}
-                  Verloren
-                {% endif %}
-              {% else %}
-                Noch nicht ausgewertet
-              {% endif %}
-            </td>
-            <td>
-              {% if part.processed %}
-                {{ "%.0f"|format(part.awarded_points) }} Punkte
-              {% else %}
-                -
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <p class="text-center">Du hast noch keine Challenges beigetreten.</p>
-  {% endif %}
+  </div>
 </div>
 {% endblock %}

@@ -137,3 +137,7 @@ class GenerateInviteForm(FlaskForm):
         existing_invitation = Invitation.query.filter_by(email=email.data, is_used=False).first()
         if existing_invitation:
             raise ValidationError('Es existiert bereits eine nicht verwendete Einladung für diese E-Mail-Adresse.')
+        
+class ChangeUsernameForm(FlaskForm):
+    username = StringField("Neuer Benutzername", validators=[DataRequired(), Length(min=2, max=50)])
+    submit = SubmitField("Ändern")

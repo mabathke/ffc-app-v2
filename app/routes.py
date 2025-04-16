@@ -2,7 +2,7 @@
 
 from functools import wraps
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
-from app.forms import (RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, 
+from app.forms import (ChangeUsernameForm, RegistrationForm, LoginForm, AddFishForm, DeleteFishForm, 
                        FangmeldungForm, EditFishForm, GenerateInviteForm, CreateChallengeForm)
 from app.models import ChallengeCondition, ChallengeParticipation, User, Fish, Catch, Invitation, Challenge, Catch
 from app import db, bcrypt, limiter
@@ -540,3 +540,17 @@ def activate_challenge(challenge_id):
     else:
         flash("Challenge is already active.", "info")
     return redirect(url_for('main.admin_panel'))
+
+@main.route("/account/username", methods=["GET", "POST"])
+@login_required
+def change_username():
+    form = ChangeUsernameForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        db.session.commit()
+        flash("Dein Benutzername wurde aktualisiert!", "success")
+        return redirect(url_for("main.account"))
+    # Prepopulate the form field with the current username on GET.
+    elif request.method == "GET":
+        form.username.data = current_user.username
+    return render_template("change_username.html", title="Benutzernamen ändern", form=form)
