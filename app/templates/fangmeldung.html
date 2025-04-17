@@ -1,5 +1,3 @@
-<!-- app/templates/fangmeldung.html -->
-
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
@@ -10,8 +8,7 @@
     alt="FFC Logo"
     class="logo mx-auto d-block mb-4"
   >
-  
-  
+
   <form method="POST">
     {{ form.hidden_tag() }}
     <div class="row">
@@ -19,14 +16,12 @@
       <div class="col-md-6 mb-3">
         <div class="form-group">
           {{ form.fish.label(class="form-label") }}
-          <!-- Use .form-control for consistent sizing with the input field -->
           {{ form.fish(class="form-control") }}
           {% for error in form.fish.errors %}
             <small class="text-danger">{{ error }}</small>
           {% endfor %}
         </div>
       </div>
-      
       <!-- Length Field -->
       <div class="col-md-6 mb-3">
         <div class="form-group">
@@ -48,14 +43,14 @@
 
 <div class="container mt-4">
   <h2 class="text-center">Meine Fänge</h2>
-  <div class="table-responsive">
-    <table class="table table-striped">
+  <div class="catch-table-responsive">
+    <table class="table table-striped catch-table">
       <thead>
         <tr>
           <th>Fisch</th>
-          <th class="d-none d-md-table-cell">Größe</th>
-          <th>Gefangen am</th>
-          <th class="d-none d-md-table-cell">Punkte</th>
+          <th>Größe</th>
+          <th>Tag</th>
+          <th>Punkte</th>
           <th>Aktionen</th>
         </tr>
       </thead>
@@ -63,21 +58,18 @@
         {% for catch in catches_per_user %}
         <tr>
           <td>{{ catch.fish.name }}</td>
-          <td class="d-none d-md-table-cell">{{ catch.length }}</td>
-          <td>{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
-          <td class="d-none d-md-table-cell">
-            {{ "%.0f"|format(catch.points) }}
+          <td>{{ catch.length }}</td>
+          <td style="max-width: 17ch; white-space: normal; overflow-wrap: break-word;">
+            {{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}
           </td>
+          <td>{{ "%.0f"|format(catch.points) }}</td>
           <td>
-            <!-- Delete Form -->
             <form
               method="POST"
               action="{{ url_for('main.delete_catch', catch_id=catch.id) }}"
               onsubmit="return confirm('Bist du sicher, dass du diesen Fang löschen möchtest?');"
             >
-              <button type="submit" class="btn btn-danger btn-sm">
-                Löschen
-              </button>
+              <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
             </form>
           </td>
         </tr>

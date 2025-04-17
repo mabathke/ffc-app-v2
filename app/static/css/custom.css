@@ -243,3 +243,29 @@ form .btn {
 .form-control {
     text-align: center !important;
 }
+
+.fancy-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .fancy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.2);
+  }
+
+  /* === Spezielle Scroll-Klasse für die „Alle Fänge“-Tabelle === */
+.catch-table-responsive {
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* smoother on iOS */
+    width: 100%;
+}
+
+.catch-table {
+    /* sorgt dafür, dass bei vielen Spalten horizontal gescrollt wird */
+    min-width: 600px;
+    white-space: nowrap;     /* verhindert Zeilenumbrüche in Zellen */
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: visible;       /* kein Abschneiden */
+}
