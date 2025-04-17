@@ -79,21 +79,6 @@
           {% endif %}
         </div>
         
-        <!-- Worth Field -->
-        <div class="mb-3">
-          {{ form.worth.label(class="form-label text-center") }}
-          {% if form.worth.errors %}
-            {{ form.worth(class="form-control is-invalid text-center") }}
-            <div class="invalid-feedback">
-              {% for error in form.worth.errors %}
-                <span>{{ error }}</span>
-              {% endfor %}
-            </div>
-          {% else %}
-            {{ form.worth(class="form-control text-center") }}
-          {% endif %}
-        </div>
-        
         <!-- Fish Type Field -->
         <div class="mb-3">
           {{ form.type.label(class="form-label text-center") }}
