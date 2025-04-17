@@ -3,8 +3,13 @@
 <div class="mt-4">
   <div class="container">
     <h1 class="text-center">Rangliste</h1>
-    <img id="logo" src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}" alt="Logo" class="logo">
-    
+    <img
+      id="logo"
+      src="{{ url_for('static', filename='images/ffc_logo-removebg-preview.png') }}"
+      alt="Logo"
+      class="logo"
+    >
+
     <table class="table table-striped">
       <thead>
         <tr>
@@ -26,86 +31,84 @@
   </div>
 
   {% if current_user.is_authenticated %}
-    <div class="container mt-4">
-      <h3 class="text-center">Alle Fänge</h3>
-      <table class="table table-striped">
+  <div class="container mt-4">
+    <h3 class="text-center">Alle Fänge</h3>
+    <div class="catch-table-responsive">
+      <table class="table table-striped catch-table">
         <thead>
           <tr>
             <th>Fisch</th>
             <th>Angler</th>
-            <th>Größe</th>
-            <th class="d-none d-md-table-cell">Gefangen am</th>
-            <th class="d-none d-md-table-cell">Punkte</th>
+            <th>Größe (cm)</th>
+            <th>Punkte</th>
+            <th>Gefangen am</th>
           </tr>
         </thead>
         <tbody>
           {% for catch in catches %}
           <tr>
-            <td style="max-width: 15ch; white-space: normal; overflow-wrap: break-word;">
+            <td style="max-width: 17ch; white-space: normal; overflow-wrap: break-word;">
               {{ catch.fish.name }}
             </td>
             <td>{{ catch.user.username }}</td>
             <td>{{ catch.length }}</td>
-            <td class="d-none d-md-table-cell" style="white-space: normal; overflow-wrap: break-word;">
-              {{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}
-            </td>
-            <td class="d-none d-md-table-cell">
-              {{ "%.0f"|format(catch.points) }}
-            </td>
+            <td>{{ "%.0f"|format(catch.points) }}</td>
+            <td>{{ catch.timestamp.strftime('%d.%m.%Y') }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-
-      <!-- Abgeschlossene Herausforderungen Section -->
-      <h3 class="text-center mt-4">Abgeschlossene Herausforderungen</h3>
-      {% if expired_challenges %}
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead class="table-success">
-              <tr>
-                <th>Herausforderung</th>
-                <th>Ergebnisse</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for group in expired_challenges %}
-              {% set challenge = group.challenge %}
-              <tr>
-                <td>
-                  {% for cond in challenge.conditions %}
-                    {% if cond.condition_type == 'specific' and cond.fish %}
-                      {{ cond.goal }} {{ cond.fish.name }} fangen
-                    {% elif cond.condition_type == 'category' and cond.fish_type %}
-                      {{ cond.goal }} {{ cond.fish_type }} fangen
-                    {% else %}
-                      {{ cond.goal }} Fische fangen
-                    {% endif %}
-                    {% if not loop.last %}<br>{% endif %}
-                  {% endfor %}
-                </td>
-                <td>
-                  {% for part in group.participations %}
-                  <div>
-                    <strong>{{ part.user.username }}</strong>:
-                    {{ "%.0f"|format(part.awarded_points) }}
-                  </div>
-                  {% endfor %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <p class="text-center">Es gibt keine abgeschlossenen Herausforderungen.</p>
-      {% endif %}
     </div>
+  </div>
+
+  <!-- Abgeschlossene Herausforderungen Section -->
+  <h3 class="text-center mt-4">Abgeschlossene Herausforderungen</h3>
+  {% if expired_challenges %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead class="table-success">
+        <tr>
+          <th>Herausforderung</th>
+          <th>Ergebnisse</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in expired_challenges %}
+        {% set challenge = group.challenge %}
+        <tr>
+          <td>
+            {% for cond in challenge.conditions %}
+              {% if cond.condition_type == 'specific' and cond.fish %}
+                {{ cond.goal }} {{ cond.fish.name }} fangen
+              {% elif cond.condition_type == 'category' and cond.fish_type %}
+                {{ cond.goal }} {{ cond.fish_type }} fangen
+              {% else %}
+                {{ cond.goal }} Fische fangen
+              {% endif %}
+              {% if not loop.last %}<br>{% endif %}
+            {% endfor %}
+          </td>
+          <td>
+            {% for part in group.participations %}
+            <div>
+              <strong>{{ part.user.username }}</strong>: {{ "%.0f"|format(part.awarded_points) }}
+            </div>
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% else %}
-    <p class="text-center">
-      <a href="{{ url_for('main.login') }}">Melde dich an</a> oder 
-      <a href="{{ url_for('main.register') }}">registriere dich</a>.
-    </p>
+  <p class="text-center">Es gibt keine abgeschlossenen Herausforderungen.</p>
+  {% endif %}
+
+  {% else %}
+  <p class="text-center">
+    <a href="{{ url_for('main.login') }}">Melde dich an</a> oder
+    <a href="{{ url_for('main.register') }}">registriere dich</a>.
+  </p>
   {% endif %}
 </div>
 {% endblock %}
