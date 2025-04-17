@@ -46,8 +46,12 @@
             </td>
             <td>{{ catch.user.username }}</td>
             <td>{{ catch.length }}</td>
-            <td class="d-none d-md-table-cell">{{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
-            <td class="d-none d-md-table-cell">{{ "%.0f"|format(catch.points) }}</td>
+            <td class="d-none d-md-table-cell" style="white-space: normal; overflow-wrap: break-word;">
+              {{ catch.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}
+            </td>
+            <td class="d-none d-md-table-cell">
+              {{ "%.0f"|format(catch.points) }}
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -79,31 +83,12 @@
                     {% endif %}
                     {% if not loop.last %}<br>{% endif %}
                   {% endfor %}
-                  <br>
-                  <small>
-                    Dauer: 
-                    {% if challenge.time_period == 'M' %}
-                      Monat
-                    {% elif challenge.time_period == 'W' %}
-                      Woche
-                    {% elif challenge.time_period == 'D' %}
-                      Tag
-                    {% elif challenge.time_period == 'T' %}
-                      Test
-                    {% else %}
-                      Unbekannt
-                    {% endif %}
-                  </small>
                 </td>
                 <td>
                   {% for part in group.participations %}
                   <div>
                     <strong>{{ part.user.username }}</strong>:
-                    {% if part.success %}
-                      Gewonnen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                    {% else %}
-                      Fehlgeschlagen ({{ "%.0f"|format(part.awarded_points) }} Punkte)
-                    {% endif %}
+                    {{ "%.0f"|format(part.awarded_points) }}
                   </div>
                   {% endfor %}
                 </td>
